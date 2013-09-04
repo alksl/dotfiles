@@ -1,0 +1,3 @@
+vcs_root_hook() {
+  export R=`zstyle ":vcs_info:*:command:*" formats "%R"; vcs_info command; vcs_info_lastmsg | grep _0_ | cut -d\" -f2`
+}
