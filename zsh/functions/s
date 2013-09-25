@@ -1,0 +1,7 @@
+export SPIKES=~/Code/Spikes
+
+function s() {
+    cd $SPIKES/$1
+}
+
+compdef '_files -W $SPIKES -/' s
