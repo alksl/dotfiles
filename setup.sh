@@ -6,6 +6,7 @@ INSTALL_FILES=(\
   vim \
   zshrc \
   zsh \
+  tmux.conf \
 )
 
 SOURCE_DIR=$(dirname "${PWD}/${0}")
