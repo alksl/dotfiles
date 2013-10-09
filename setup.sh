@@ -7,6 +7,7 @@ INSTALL_FILES=(\
   zshrc \
   zsh \
   tmux.conf \
+  gitconfig \
 )
 
 SOURCE_DIR=$(dirname "${PWD}/${0}")
