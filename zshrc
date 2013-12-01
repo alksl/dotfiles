@@ -48,7 +48,13 @@ zstyle ':vcs_info:*:*' nvcsformats "%~" ""
 watch=notme
 LOGCHECK=0
 
-# Keys
+# Use vi mode but restore some sane emacs commands.
+bindkey -v
+bindkey -M viins '^a' beginning-of-line
+bindkey -M viins '^e' end-of-line
+bindkey -M viins '^r' history-incremental-search-backward
+bindkey -M vicmd '^r' history-incremental-search-backward
+
 bindkey "[C" forward-word
 bindkey "[D" backward-word
 
