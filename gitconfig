@@ -20,3 +20,9 @@
   co = checkout
   ci = commit
   st = status
+
+[push]
+	default = upstream
+
+[ui]
+  color = auto
