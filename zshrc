@@ -6,7 +6,7 @@ fi
 
 if [[ -d "${HOME}/.rbenv" ]]
 then
-  PATH="${HOME}/.rbenv/bin:${PATH}"
+  PATH="${HOME}/.rbenv/bin:${HOME}/.rbenv/shims:${PATH}"
   eval "$(rbenv init -)"
 fi
 
@@ -120,3 +120,9 @@ then
 fi
 
 export CLICOLOR=1
+
+### Added by the Heroku Toolbelt
+if [[ -d "$HOME/local/bin" ]]
+then
+  export PATH="/usr/local/heroku/bin:$PATH"
+fi
