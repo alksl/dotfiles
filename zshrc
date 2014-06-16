@@ -58,6 +58,8 @@ bindkey -M vicmd '^r' history-incremental-search-backward
 bindkey "[C" forward-word
 bindkey "[D" backward-word
 
+# fixa backspace på solaris tangentbord
+bindkey '^?' backward-delete-char
 # Set required options.
 setopt promptsubst
 
