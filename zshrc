@@ -132,3 +132,8 @@ if [[ -d "$HOME/local/bin" ]]
 then
   export PATH="/usr/local/heroku/bin:$PATH"
 fi
+
+if [[ -e "$HOME/.zshrc.local" ]]
+then
+  source $HOME/.zshrc.local
+fi
