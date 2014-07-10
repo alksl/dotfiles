@@ -138,5 +138,8 @@ let g:gist_open_browser_after_post = 1
 let g:gist_detect_filetype = 1
 let g:gist_clip_command = 'pbcopy'
 
+" Configure rpec command to use bundle exec
+let g:rspec_command = "!bundle exec rspec {spec}"
+
 " set status line information
 set statusline=%<%F%h%m%r%h%w%y\ %{&ff}\ %{strftime(\"%c\",getftime(expand(\"%:p\")))}%=\ lin:%l\,%L\ col:%c%V\ pos:%o\ ascii:%b\ %P
