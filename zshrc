@@ -134,3 +134,6 @@ if [[ -d "$HOME/local/bin" ]]
 then
   export PATH="/usr/local/heroku/bin:$PATH"
 fi
+
+# Alias
+alias tree_diff=diff -Naur
