@@ -4,14 +4,22 @@ then
   PATH=$HOME/local/bin:$PATH
 fi
 
+ADT_BUNDLE_PATH="${HOME}/local/adt-bundle-mac-x86_64-20140321"
+if [[ -d "$ADT_BUNDLE_PATH" ]]
+then
+  export PATH="${ADT_BUNDLE_PATH}/sdk/tools:${PATH}"
+  export PATH="${ADT_BUNDLE_PATH}/sdk/platform-tools:${PATH}"
+  export ANDROID_BIN="${ADT_BUNDLE_PATH}/sdk/tools/android"
+fi
+
+
 if [[ -d "${HOME}/.rbenv" ]]
 then
   PATH="${HOME}/.rbenv/bin:${HOME}/.rbenv/shims:${PATH}"
   eval "$(rbenv init -)"
 fi
 
-PATH=$PATH:/sbin
-
+PATH=$PATH:/usr/sbin:/sbin:/usr/local/bin
 export PATH
 
 # Load zsh modules
