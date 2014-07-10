@@ -27,12 +27,15 @@ autoload -U zargs
 autoload -U zcalc
 autoload -U vcs_info
 autoload -U add-zsh-hook
+autoload -z edit-command-line
 
 # Load compleation system
 autoload -U compinit && compinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' menu select=20
 setopt menu_complete
+
+zle -N edit-command-line
 
 # Load my functions
 fpath=(~/.zsh/functions $fpath)
@@ -65,7 +68,10 @@ bindkey -M vicmd '^r' history-incremental-search-backward
 
 bindkey "[C" forward-word
 bindkey "[D" backward-word
+bindkey "^X^E" edit-command-line
 
+# fixa backspace på solaris tangentbord
+bindkey '^?' backward-delete-char
 # Set required options.
 setopt promptsubst
 
@@ -137,3 +143,9 @@ fi
 
 # Alias
 alias tree_diff=diff -Naur
+
+# Source local file if exists
+if [[ -e "$HOME/.zshrc.local" ]]
+then
+  source $HOME/.zshrc.local
+fi

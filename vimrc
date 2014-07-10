@@ -87,8 +87,8 @@ map  <C-E> <End>
 map! <C-A> <Home>
 map! <C-E> <End>
 
-map  <BS> <C-H>
-map! <BS> <C-H>
+map   <C-H>
+map!  <C-H>
 
 " Leader commands
 
