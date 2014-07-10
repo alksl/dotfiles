@@ -90,6 +90,32 @@ map! <C-E> <End>
 map  <BS> <C-H>
 map! <BS> <C-H>
 
+" Leader commands
+
+" edit Leader commands
+map <Leader>el    :e ~/.vimrc<cr>/\<Leader\><cr>GN
+map <Leader>src   :source ~/.vimrc<cr>
+
+" Symbol hash to string hash
+map <Leader>sts   i"wwxi" =>
+
+" cmake and make commands
+map <Leader>cm    :!cmake build 2>&1 \| less<cr>
+map <Leader>m     :!pushd build; make 2>&1 \| less; popd<cr>
+map <Leader>mt    :!pushd build; make test 2>&1 \| less; popd<cr>
+
+" set textwraping
+map <Leader>w     :set tw=79<cr>:set formatoptions+=t<cr>
+
+" RSpec.vim mappings
+map <Leader>t     :w<CR>:call RunCurrentSpecFile()<CR>
+map <Leader>s     :w<CR>:call RunNearestSpec()<CR>
+map <Leader>l     :w<CR>:call RunLastSpec()<CR>
+map <Leader>a     :w<CR>:call RunAllSpecs()<CR>
+
+map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
+
+
 " plugin settings
 let g:ctrlp_match_window = 'order:ttb,max:20'
 let g:NERDSpaceDelims=1
