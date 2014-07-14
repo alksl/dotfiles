@@ -115,6 +115,9 @@ map <Leader>a     :w<CR>:call RunAllSpecs()<CR>
 
 map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
 
+" Search in dash
+map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
+
 
 " plugin settings
 let g:ctrlp_match_window = 'order:ttb,max:20'
