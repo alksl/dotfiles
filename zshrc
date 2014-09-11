@@ -19,7 +19,7 @@ then
   eval "$(rbenv init -)"
 fi
 
-PATH=$PATH:/usr/sbin:/sbin:/usr/local/bin
+PATH=/usr/sbin:/sbin:/usr/local/bin:$PATH
 export PATH
 
 # Load zsh modules
