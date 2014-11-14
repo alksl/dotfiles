@@ -19,6 +19,11 @@ then
   eval "$(rbenv init -)"
 fi
 
+if [[ -d "/Applications/CMake.app/Contents/bin" ]]
+then
+  PATH="/Applications/CMake.app/Contents/bin:${PATH}"
+fi
+
 PATH=/usr/sbin:/sbin:/usr/local/bin:$PATH
 export PATH
 
