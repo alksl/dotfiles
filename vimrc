@@ -114,6 +114,7 @@ map <Leader>l     :w<CR>:call RunLastSpec()<CR>
 map <Leader>a     :w<CR>:call RunAllSpecs()<CR>
 
 map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
+map <Leader>gwm   :!git add . && git ci<CR>
 
 " Search in dash
 map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
