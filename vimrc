@@ -76,6 +76,50 @@ endfunc
 
 nnoremap <C-n> :call NumberToggle()<cr>
 
+" Functions for running c++ make tests
+function! SetLastCxxTest(test)
+  let s:last_cxx_test = a:test
+endfunction
+
+function! RunCxxTest(test)
+  exec substitute("!build/{test}", "{test}", a:test, "g")
+endfunction
+
+function! RunLastCxxTest()
+  if(exists("s:last_cxx_test"))
+    call RunCxxTest(s:last_cxx_test)
+  endif
+endfunction
+
+function! InCxxTestFile()
+  return match(expand("%"), "_test.cc$") != -1
+endfunction
+
+function! RunCurrentCxxTestFile()
+  if InCxxTestFile()
+    let l:test = expand("%:t:r")
+    call SetLastCxxTest(l:test)
+    call RunCxxTest(l:test)
+  else
+    call RunLastCxxTest()
+  endif
+endfunction
+
+function! RunCurrentTest()
+  if(&filetype == "cpp")
+    call RunCurrentCxxTestFile()
+  else
+    call RunCurrentSpecFile()
+  endif
+endfunction
+
+function! RunLastTest()
+  if(&filetype == "cpp")
+    call RunLastCxxTest()
+  else
+    call RunLastSpec()
+  endif
+endfunction
 
 " map Ctrl-A and Ctrl-E to emacs mode. map! makes
 " the mapping work in all vim modes
@@ -108,10 +152,12 @@ map <Leader>mt    :!pushd build; make test 2>&1 \| less; popd<cr>
 map <Leader>w     :set tw=79<cr>:set formatoptions+=t<cr>
 
 " RSpec.vim mappings
-map <Leader>t     :w<CR>:call RunCurrentSpecFile()<CR>
 map <Leader>s     :w<CR>:call RunNearestSpec()<CR>
-map <Leader>l     :w<CR>:call RunLastSpec()<CR>
 map <Leader>a     :w<CR>:call RunAllSpecs()<CR>
+
+" Common bindings for Cxx and Rspec tests
+map <Leader>t     :w<CR>:call RunCurrentTest()<CR>
+map <Leader>l     :w<CR>:call RunLastTest()<CR>
 
 map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
 map <Leader>gwm   :!git add . && git ci<CR>
