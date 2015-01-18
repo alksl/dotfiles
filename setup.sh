@@ -22,3 +22,11 @@ do
   fi
 done
 
+
+if [[ -e "${HOME}/.ssh/config" ]]
+then
+  echo "${HOME}/.ssh/config already exists"
+else
+  /bin/ln -s "${SOURCE_DIR}/ssh_config" "${HOME}/.ssh/config"
+fi
+
