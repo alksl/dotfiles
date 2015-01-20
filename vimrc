@@ -165,6 +165,12 @@ map <Leader>gwm   :!git add . && git ci<CR>
 " Search in dash
 map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
 
+" Search for word in code base
+map <Leader>sw    yiw:Ag <C-r>"<CR>
+
+" Insert iso date
+map <Leader>id    i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
+
 
 " plugin settings
 let g:ctrlp_match_window = 'order:ttb,max:20'
