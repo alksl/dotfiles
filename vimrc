@@ -169,7 +169,7 @@ map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
 map <Leader>sw    yiw:Ag <C-r>"<CR>
 
 " Insert iso date
-map <Leader>id    i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
+map <Leader>id    o<Esc>i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
 
 
 " plugin settings
