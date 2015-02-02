@@ -150,6 +150,10 @@ fi
 
 # Alias
 alias tree_diff=diff -Naur
+alias ta="tmux a"
+alias be="bundle exec"
+alias pd="pushd"
+alias pop="popd"
 
 # Source local file if exists
 if [[ -e "$HOME/.zshrc.local" ]]
