@@ -45,6 +45,8 @@ zle -N edit-command-line
 # Load my functions
 fpath=(~/.zsh/functions $fpath)
 autoload -U ~/.zsh/functions/*(:t)
+. ~/.zsh/functions/p
+. ~/.zsh/functions/s
 
 add-zsh-hook chpwd vcs_root_hook
 
