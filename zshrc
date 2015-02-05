@@ -19,6 +19,11 @@ then
   eval "$(rbenv init -)"
 fi
 
+if [[ -d "/Applications/CMake.app/Contents/bin" ]]
+then
+  PATH="/Applications/CMake.app/Contents/bin:${PATH}"
+fi
+
 PATH=/usr/sbin:/sbin:/usr/local/bin:$PATH
 export PATH
 
@@ -40,6 +45,8 @@ zle -N edit-command-line
 # Load my functions
 fpath=(~/.zsh/functions $fpath)
 autoload -U ~/.zsh/functions/*(:t)
+. ~/.zsh/functions/p
+. ~/.zsh/functions/s
 
 add-zsh-hook chpwd vcs_root_hook
 
@@ -143,6 +150,10 @@ fi
 
 # Alias
 alias tree_diff=diff -Naur
+alias ta="tmux a"
+alias be="bundle exec"
+alias pd="pushd"
+alias pop="popd"
 
 # Source local file if exists
 if [[ -e "$HOME/.zshrc.local" ]]

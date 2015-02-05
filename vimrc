@@ -160,9 +160,16 @@ map <Leader>t     :w<CR>:call RunCurrentTest()<CR>
 map <Leader>l     :w<CR>:call RunLastTest()<CR>
 
 map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
+map <Leader>gwm   :!git add . && git ci<CR>
 
 " Search in dash
 map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
+
+" Search for word in code base
+map <Leader>sw    yiw:Ag <C-r>"<CR>
+
+" Insert iso date
+map <Leader>id    o<Esc>i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
 
 
 " plugin settings
