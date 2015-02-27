@@ -171,6 +171,9 @@ map <Leader>sw    yiw:Ag <C-r>"<CR>
 " Insert iso date
 map <Leader>id    o<Esc>i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
 
+" Open latex file
+map <Leader>o    :!make open<cr><cr>
+
 " Drop down to shell
 noremap <C-d>    :sh<cr>
 
