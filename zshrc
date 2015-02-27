@@ -47,6 +47,7 @@ fpath=(~/.zsh/functions $fpath)
 autoload -U ~/.zsh/functions/*(:t)
 . ~/.zsh/functions/p
 . ~/.zsh/functions/s
+. ~/.zsh/functions/d
 
 add-zsh-hook chpwd vcs_root_hook
 

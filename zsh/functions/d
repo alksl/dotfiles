@@ -1,0 +1,7 @@
+export DATA=~/Data
+
+function d() {
+    cd $DATA/$1
+}
+
+compdef '_files -W $DATA -/' d
