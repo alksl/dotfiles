@@ -9,6 +9,12 @@ set nocompatible
 " automatically rebalance windows on vim resize
 autocmd VimResized * :wincmd =
 
+" Enable spelling for texfiles
+autocmd BufRead,BufNewFile *.tex setlocal spell
+autocmd BufRead,BufNewFile *.tex set complete+=kspell
+autocmd FileType tex setlocal spell
+autocmd FileType tex set complete+=kspell
+
 " show a navigable menu for tab completion
 " set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
 set wildmenu
