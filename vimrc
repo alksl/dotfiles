@@ -180,6 +180,12 @@ map <Leader>id    o<Esc>i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<
 " Open latex file
 map <Leader>o    :!make open<cr><cr>
 
+" Go to tag
+map <Leader>gt    yiw:ta <C-r>"<CR>
+
+" Reload ~/.vimrc
+map <Leader>r     :source ~/.vimrc<CR>
+
 " Drop down to shell
 noremap <C-d>    :sh<cr>
 
