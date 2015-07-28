@@ -155,6 +155,9 @@ alias ta="tmux a"
 alias be="bundle exec"
 alias pd="pushd"
 alias pop="popd"
+alias rtags="ctags -R --languages=ruby --exclude=.git --exclude=log . \$(bundle list --paths)"
+alias gd="git diff"
+alias gdc="git diff --cached"
 
 # Source local file if exists
 if [[ -e "$HOME/.zshrc.local" ]]
