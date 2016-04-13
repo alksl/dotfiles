@@ -174,10 +174,18 @@ alias gdc="git diff --cached"
 alias ra="be rake"
 alias rt="be rake test"
 
+if [ -e ~/.ssh-agent-pid ] && ps -p $(cat ~/.ssh-agent-pid) > /dev/null
+then
+  export SSH_AGENT_PID=$(cat ~/.ssh-agent-pid)
+  export SSH_AUTH_SOCK=$(cat ~/.ssh-agent-socket)
+else
+  eval $(ssh-agent -s) > /dev/null
+  echo $SSH_AGENT_PID > ~/.ssh-agent-pid
+  echo $SSH_AUTH_SOCK > ~/.ssh-agent-socket
+fi
+
 # Source local file if exists
 if [[ -e "$HOME/.zshrc.local" ]]
 then
   source $HOME/.zshrc.local
 fi
-
-
