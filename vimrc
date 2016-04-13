@@ -187,6 +187,11 @@ map <Leader>gtv   yiw<C-w>v<C-w>k:ta <C-r>"<CR>
 
 " Reload ~/.vimrc
 map <Leader>r     :source ~/.vimrc<CR>
+map <Leader>rt    :w<CR>:!bundle exec rake test<CR>
+
+" Move to next and prev style error
+map <Leader>n     :lnext<CR>
+map <Leader>p     :lprev<CR>
 
 " Drop down to shell
 noremap <C-d>    :sh<cr>
@@ -214,7 +219,22 @@ let g:gist_detect_filetype = 1
 let g:gist_clip_command = 'pbcopy'
 
 " Configure rpec command to use bundle exec
-let g:rspec_command = "!bundle exec rspec {spec}"
+let g:rspec_command = "!spring rspec {spec}"
+
+" Configure markdown not to fold
+let g:vim_markdown_folding_disabled=1
 
 " set status line information
-set statusline=%<%F%h%m%r%h%w%y\ %{&ff}\ %{strftime(\"%c\",getftime(expand(\"%:p\")))}%=\ lin:%l\,%L\ col:%c%V\ pos:%o\ ascii:%b\ %P
+set statusline=%<%F%h%m%r%h%w%y\ %{&ff}\ lin:%l\,%L\ col:%c%V\ pos:%o\ ascii:%b
+set statusline+=\ %#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_python_python_exec = '/usr/local/bin/python3'
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+let g:syntastic_ruby_checkers=['mri', 'rubocop']
+let g:syntastic_python_checkers = ['flake8']
+let g:syntastic_quiet_messages = {}
