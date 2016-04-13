@@ -182,6 +182,8 @@ map <Leader>o    :!make open<cr><cr>
 
 " Go to tag
 map <Leader>gt    yiw:ta <C-r>"<CR>
+map <Leader>gts   yiw<C-w>s<C-w>k:ta <C-r>"<CR>
+map <Leader>gtv   yiw<C-w>v<C-w>k:ta <C-r>"<CR>
 
 " Reload ~/.vimrc
 map <Leader>r     :source ~/.vimrc<CR>
