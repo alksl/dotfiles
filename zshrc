@@ -42,6 +42,16 @@ setopt menu_complete
 
 zle -N edit-command-line
 
+if [[ -e /usr/local/bin/virtualenvwrapper.sh ]]
+then
+  export WORKON_HOME=$HOME/Code/.virtualenvs
+  export PROJECT_HOME=$HOME/Code/Projects
+  export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+  source /usr/local/bin/virtualenvwrapper.sh
+  compdef '_files -W $WORKON_HOME -/' workon
+fi
+
+
 # Load my functions
 fpath=(~/.zsh/functions $fpath)
 autoload -U ~/.zsh/functions/*(:t)
@@ -152,15 +162,22 @@ fi
 # Alias
 alias tree_diff=diff -Naur
 alias ta="tmux a"
+alias ts="tmux list-sessions"
 alias be="bundle exec"
+alias bi="bundle install"
+alias c="bundle console"
 alias pd="pushd"
 alias pop="popd"
 alias rtags="ctags -R --languages=ruby --exclude=.git --exclude=log . \$(bundle list --paths)"
 alias gd="git diff"
 alias gdc="git diff --cached"
+alias ra="be rake"
+alias rt="be rake test"
 
 # Source local file if exists
 if [[ -e "$HOME/.zshrc.local" ]]
 then
   source $HOME/.zshrc.local
 fi
+
+
