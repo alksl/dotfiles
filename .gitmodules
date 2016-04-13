@@ -19,3 +19,9 @@
 [submodule "vim/bundle/vim-endwise"]
 	path = vim/bundle/vim-endwise
 	url = https://github.com/tpope/vim-endwise.git
+[submodule "vim/bundle/syntastic"]
+	path = vim/bundle/syntastic
+	url = https://github.com/scrooloose/syntastic.git
+[submodule "vim/bundle/table-mode"]
+	path = vim/bundle/table-mode
+	url = git@github.com:dhruvasagar/vim-table-mode.git
