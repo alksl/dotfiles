@@ -1,33 +1,4 @@
-Host github.com
-  MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512
-
-Host heroku.com
-  MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha1
-
 Host *
-  MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+  MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512
   Ciphers aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
-Host saturn
-  User anton
-  HostName somfan.net
-
-Host ida
-  User antho733
-  HostName astmatix.ida.liu.se
-
-Host isy
-  User antho733
-  HostName ixtab.edu.isy.liu.se
-
-Host mai
-  User antho733
-  HostName lien.edu.mai.liu.se
-
-Host lille3
-  User antho733
-  HostName 130.236.179.103
-
-Host dityrambix
-  User antho733
-  HostName dityrambix.ida.liu.se
-
+  ServerAliveInterval 5
