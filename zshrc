@@ -169,7 +169,7 @@ setopt HIST_REDUCE_BLANKS
 setopt HIST_VERIFY
 
 # Report time of command if it took longer than 30 seconds
-export REPORTTIME=30
+export REPORTTIME=15
 
 # Promts for confirmation after 'rm *'
 setopt RM_STAR_WAIT
