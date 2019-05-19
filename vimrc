@@ -1,7 +1,25 @@
-" set up pathogen, https://github.com/tpope/vim-pathogen
-filetype off
-call pathogen#infect()
-filetype plugin indent on
+call plug#begin('~/.vim/plugged')
+
+Plug 'rking/ag.vim'
+Plug 'mattn/gist-vim'
+Plug 'mattn/webapi-vim'
+Plug 'tpope/vim-endwise'
+Plug 'vim-syntastic/syntastic'
+Plug 'hashivim/vim-terraform'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-rhubarb'
+Plug 'tpope/vim-unimpaired'
+Plug 'vim-ruby/vim-ruby'
+Plug 'rust-lang/rust.vim'
+Plug 'majutsushi/tagbar'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rake'
+Plug 'tpope/vim-projectionist'
+Plug '/usr/local/opt/fzf'
+Plug 'mhinz/vim-signify'
+
+" Initialize plugin system
+call plug#end()
 
 " disable compability with vi
 set nocompatible
@@ -9,28 +27,29 @@ set nocompatible
 " automatically rebalance windows on vim resize
 autocmd VimResized * :wincmd =
 
-" Enable spelling for texfiles
+" Enable spelling for texfiles and git commit messages
 autocmd BufRead,BufNewFile *.tex setlocal spell
 autocmd BufRead,BufNewFile *.tex set complete+=kspell
 autocmd FileType tex setlocal spell
 autocmd FileType tex set complete+=kspell
+autocmd FileType gitcommit setlocal spell
+
+" Close fugitive buffers automatically
+autocmd BufReadPost fugitive://* set bufhidden=delete
 
 " show a navigable menu for tab completion
-" set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
+set wildignore=log/**,node_modules/**,target/**,tmp/**
 set wildmenu
 set wildmode=longest,list,full
 
 " smart autoindentaiton
-set backspace=indent,eol,start
+se backspace=indent,eol,start
 set autoindent
 set smartindent
 set cinkeys=0{,0},0):,0#,!^I,o,O,e
 
 " display incomplete command
 set showcmd
-
-" display ruler
-set ruler
 
 " tab configuration
 set tabstop=2
@@ -57,9 +76,6 @@ set t_vb=
 " search while i type.
 set incsearch
 
-" dark background
-set background=dark
-
 " color dependent settings
 if &t_Co > 1 || has("gui_running")
   syntax enable " enable syntax high
@@ -67,71 +83,21 @@ if &t_Co > 1 || has("gui_running")
   nnoremap <F3> :set hlsearch!<CR>
 endif
 
-colorscheme vibrantink
+filetype plugin indent on
 
-" display linenumbers
-set relativenumber
-
-function! NumberToggle()
-  if(&relativenumber == 1)
-    set number
+function! ToggleAutoChDir()
+  if(&autochdir == 1)
+    set noautochdir
   else
-    set relativenumber
-  endif
-endfunc
-
-nnoremap <C-n> :call NumberToggle()<cr>
-
-" Functions for running c++ make tests
-function! SetLastCxxTest(test)
-  let s:last_cxx_test = a:test
-endfunction
-
-function! RunCxxTest(test)
-  exec substitute("!build/{test}", "{test}", a:test, "g")
-endfunction
-
-function! RunLastCxxTest()
-  if(exists("s:last_cxx_test"))
-    call RunCxxTest(s:last_cxx_test)
+    set autochdir
   endif
 endfunction
-
-function! InCxxTestFile()
-  return match(expand("%"), "_test.cc$") != -1
-endfunction
-
-function! RunCurrentCxxTestFile()
-  if InCxxTestFile()
-    let l:test = expand("%:t:r")
-    call SetLastCxxTest(l:test)
-    call RunCxxTest(l:test)
-  else
-    call RunLastCxxTest()
-  endif
-endfunction
-
-function! RunCurrentTest()
-  if(&filetype == "cpp")
-    call RunCurrentCxxTestFile()
-  else
-    call RunCurrentSpecFile()
-  endif
-endfunction
-
-function! RunLastTest()
-  if(&filetype == "cpp")
-    call RunLastCxxTest()
-  else
-    call RunLastSpec()
-  endif
-endfunction
-
-" map Ctrl-A and Ctrl-E to emacs mode. map! makes
-" the mapping work in all vim modes
 
 let mapleader=","
 
+nmap <F8> :TagbarToggle<CR>
+
+map  <C-P> :FZF<CR>
 map  <C-A> <Home>
 map  <C-E> <End>
 map! <C-A> <Home>
@@ -140,36 +106,12 @@ map! <C-E> <End>
 map   <C-H>
 map!  <C-H>
 
-" Leader commands
+map <Leader>ad :call ToggleAutoChDir()<cr>
 
-" edit Leader commands
-map <Leader>el    :e ~/.vimrc<cr>/\<Leader\><cr>GN
-map <Leader>src   :source ~/.vimrc<cr>
+map <Leader>gw :Gwrite<cr>
+map <Leader>gs :Gstatus<cr>
 
-" Symbol hash to string hash
-map <Leader>sts   i"wwxi" =>
-
-" cmake and make commands
-map <Leader>cm    :!cmake build 2>&1 \| less<cr>
-map <Leader>m     :!pushd build; make 2>&1 \| less; popd<cr>
-map <Leader>mt    :!pushd build; make test 2>&1 \| less; popd<cr>
-
-" set textwraping
 map <Leader>w     :set tw=79<cr>:set formatoptions+=t<cr>
-
-" RSpec.vim mappings
-map <Leader>s     :w<CR>:call RunNearestSpec()<CR>
-map <Leader>a     :w<CR>:call RunAllSpecs()<CR>
-
-" Common bindings for Cxx and Rspec tests
-map <Leader>t     :w<CR>:call RunCurrentTest()<CR>
-map <Leader>l     :w<CR>:call RunLastTest()<CR>
-
-map <Leader>gw    :!git add . && git ci -m "WIP"<CR>
-map <Leader>gwm   :!git add . && git ci<CR>
-
-" Search in dash
-map <Leader>d     :!open dash://<C-r><C-w><CR><CR>
 
 " Search for word in code base
 map <Leader>sw    yiw:Ag <C-r>"<CR>
@@ -177,29 +119,42 @@ map <Leader>sw    yiw:Ag <C-r>"<CR>
 " Insert iso date
 map <Leader>id    o<Esc>i<C-r>=substitute(system('date +\%F'),'[\r\n]*$','','')<cr><esc>
 
-" Open latex file
-map <Leader>o    :!make open<cr><cr>
-
 " Go to tag
 map <Leader>gt    yiw:ta <C-r>"<CR>
 map <Leader>gts   yiw<C-w>s<C-w>k:ta <C-r>"<CR>
 map <Leader>gtv   yiw<C-w>v<C-w>k:ta <C-r>"<CR>
 
+map <Leader>ct    :Cargo test<cr>
+
 " Reload ~/.vimrc
 map <Leader>r     :source ~/.vimrc<CR>
-map <Leader>rt    :w<CR>:!bundle exec rake test<CR>
 
 " Move to next and prev style error
 map <Leader>n     :lnext<CR>
 map <Leader>p     :lprev<CR>
 
 " Drop down to shell
-noremap <C-d>    :sh<cr>
+noremap <C-d>     :sh<cr>
 
-" plugin settings
-let g:ctrlp_match_window = 'order:ttb,max:20'
-let g:NERDSpaceDelims=1
-let g:gitgutter_enabled = 0
+" Syntastic commands
+map <Leader>st    :SyntasticToggleMode<CR>
+map <Leader>sr    :SyntasticReset<CR>
+map <Leader>sc    :SyntasticCheck<CR>
+
+" Write with two newline padding
+map <Leader>o     o<CR><CR>
+map <Leader>O     O<Esc>O<Esc>O
+
+" add frozen string literal
+map <Leader>fz    ggO# frozen_string_literal: true<CR><Esc>x<Esc>
+
+
+" Yank selected to system clipboard
+vmap <C-c> :y *<CR>
+
+" Paste system clipboard
+imap <C-v> "+p
+
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 if executable('ag')
@@ -207,34 +162,64 @@ if executable('ag')
 
   " Use Ag over Grep
   set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
 endif
 
 
-" Configure Gist plugin
+" Configure Gist
 let g:gist_open_browser_after_post = 1
 let g:gist_detect_filetype = 1
 let g:gist_clip_command = 'pbcopy'
 
-" Configure rpec command to use bundle exec
-let g:rspec_command = "!spring rspec {spec}"
-
-" Configure markdown not to fold
-let g:vim_markdown_folding_disabled=1
-
-" set status line information
-set statusline=%<%F%h%m%r%h%w%y\ %{&ff}\ lin:%l\,%L\ col:%c%V\ pos:%o\ ascii:%b
-set statusline+=\ %#warningmsg#
-set statusline+=%{SyntasticStatuslineFlag()}
-set statusline+=%*
-
+" Configure Systastic
 let g:syntastic_python_python_exec = '/usr/local/bin/python3'
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
-let g:syntastic_ruby_checkers=['mri', 'rubocop']
+let g:syntastic_ruby_checkers = ['mri', 'rubocop']
 let g:syntastic_python_checkers = ['flake8']
 let g:syntastic_quiet_messages = {}
+let g:syntastic_sh_shellcheck_args = "-x"
+
+" Configure Rust plugin
+let g:rust_clip_command = 'pbcopy'
+let g:rustfmt_autosave = 1
+
+" Configure FZF
+set rtp+=/usr/local/opt/fzf
+let g:fzf_action = {
+ \ 'ctrl-t': 'tab split',
+ \ 'ctrl-s': 'split',
+ \ 'ctrl-v': 'vsplit'
+ \ }
+
+" Configure signify
+let g:signify_vcs_list = ['git']
+let g:signify_realtime = 1
+
+
+"" Visual settings
+set background=dark
+colorscheme vibrantink
+
+set number
+set cursorline
+
+set ruler
+set rulerformat=%-14.(%l,%c%V%)\ %P
+
+set laststatus=2
+set statusline=
+set statusline+=\ %f%m
+set statusline+=\ %{FugitiveStatusline()}
+set statusline+=\ %{SyntasticStatuslineFlag()}
+set statusline+=%=%-14.(%l,%c%V%)
+
+highlight StatusLine                   ctermbg=252  ctermfg=30
+highlight StatusLineNC                 ctermbg=252  ctermfg=23
+highlight DiffAdd           cterm=bold ctermbg=none ctermfg=119
+highlight DiffDelete        cterm=bold ctermbg=none ctermfg=167
+highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
+highlight SignColumn                   ctermbg=none
+highlight LineNr                       ctermbg=none ctermfg=243
+highlight CursorLineNR      cterm=bold ctermbg=none ctermfg=255
