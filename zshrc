@@ -197,8 +197,9 @@ alias pop="popd"
 alias rtags="ctags -R --languages=ruby --exclude=.git --exclude=log . \$(bundle list --paths)"
 alias gd="git diff"
 alias gdc="git diff --cached"
-alias ra="be rake"
-alias rt="be rake test"
+alias ra="./bin/rake"
+alias rt="./bin/rake test"
+alias de="docker exec -it \$(docker ps -l -q) bash"
 
 if [ -e ~/.ssh-agent-pid ] && ps -p $(cat ~/.ssh-agent-pid) > /dev/null
 then
