@@ -12,6 +12,8 @@ then
   export ANDROID_BIN="${ADT_BUNDLE_PATH}/sdk/tools/android"
 fi
 
+PATH=/usr/sbin:/sbin:/usr/local/bin:$PATH
+
 
 if [[ -d "${HOME}/.rbenv" ]]
 then
@@ -24,7 +26,25 @@ then
   PATH="/Applications/CMake.app/Contents/bin:${PATH}"
 fi
 
-PATH=/usr/sbin:/sbin:/usr/local/bin:$PATH
+if [[ -d "${HOME}/go" ]]
+then
+  PATH="${HOME}/go/bin:${PATH}"
+fi
+
+if [[ -d "/usr/local/opt/python/libexec/bin" ]]; then
+  PATH="/usr/local/opt/python/libexec/bin:${PATH}"
+fi
+
+if [[ -e "${HOME}/.cargo/env" ]]; then
+  source $HOME/.cargo/env
+fi
+
+if hash pyenv
+then
+  PATH="$(pyenv root)/shims:${PATH}"
+  eval "$(pyenv init -)"
+fi
+
 export PATH
 
 # Load zsh modules
