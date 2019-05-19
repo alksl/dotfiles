@@ -3,11 +3,11 @@
   email = me@antonholmgren.com
 
 [core]
-  excludesfile = /Users/anton/.gitignore_global
+	excludesfile = /Users/anton/.gitignore_global
 
 [difftool "sourcetree"]
 	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
+	path =
 
 [mergetool "sourcetree"]
 	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
@@ -20,6 +20,10 @@
   co = checkout
   ci = commit
   st = status
+  f  = commit --fixup
+  lo = log --oneline
+  squash = rebase -i --autosquash master
+  b = checkout -b
 
 [push]
   default = upstream
@@ -29,3 +33,7 @@
 
 [color]
   ui = auto
+[fetch]
+	prune = true
+[remote "origin"]
+	prune = true

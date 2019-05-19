@@ -3,3 +3,5 @@
 *.swp
 tags
 hack.sh
+*.csv
+*tfstate*
