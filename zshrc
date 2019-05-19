@@ -56,9 +56,15 @@ autoload -z edit-command-line
 
 # Load compleation system
 autoload -U compinit && compinit
+autoload -U bashcompinit
 zstyle ':completion:*' menu select
 zstyle ':completion:*' menu select=20
 setopt menu_complete
+
+if [[ -e /usr/local/share/zsh/site-functions/aws_zsh_completer.sh ]];
+then
+  source /usr/local/share/zsh/site-functions/aws_zsh_completer.sh
+fi
 
 zle -N edit-command-line
 
@@ -66,7 +72,7 @@ if [[ -e /usr/local/bin/virtualenvwrapper.sh ]]
 then
   export WORKON_HOME=$HOME/Code/.virtualenvs
   export PROJECT_HOME=$HOME/Code/Projects
-  export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+  export VIRTUALENVWRAPPER_PYTHON=python
   source /usr/local/bin/virtualenvwrapper.sh
   compdef '_files -W $WORKON_HOME -/' workon
 fi
