@@ -93,6 +93,13 @@ function! ToggleAutoChDir()
   endif
 endfunction
 
+function! s:git_log_handler(log_row)
+  let words = split(a:log_row)
+  let @" = words[0]
+endfunction
+
+command! -nargs=0 FZFcommit call fzf#run({'source': 'git log --oneline', 'sink': function('<sid>git_log_handler')})
+
 let mapleader=","
 
 nmap <F8> :TagbarToggle<CR>
@@ -154,6 +161,8 @@ vmap <C-c> :y *<CR>
 
 " Paste system clipboard
 imap <C-v> "+p
+
+map <Leader>cf  :FZFcommit<CR>:Gcommit --fixup=<C-r>"
 
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
@@ -223,3 +232,4 @@ highlight DiffChange        cterm=bold ctermbg=none ctermfg=227
 highlight SignColumn                   ctermbg=none
 highlight LineNr                       ctermbg=none ctermfg=243
 highlight CursorLineNR      cterm=bold ctermbg=none ctermfg=255
+
