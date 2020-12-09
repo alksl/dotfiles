@@ -1,0 +1,18 @@
+{
+  "diagnostic.displayByAle": true,
+  "languageserver": {
+    "terraform": {
+      "command": "terraform-lsp",
+      "filetypes": ["terraform", "tf"],
+      "initializationOptions": {}
+    }
+  },
+  "solargraph.diagnostics": true,
+  "solargraph.autoformat": true,
+  "solargraph.completion": true,
+  "solargraph.symbols": true,
+  "solargraph.references": true,
+  "solargraph.formatting": true,
+  "solargraph.definitions": true,
+  "solargraph.trace.server": "verbose"
+}
