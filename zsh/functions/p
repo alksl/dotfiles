@@ -1,0 +1,7 @@
+export PROJECTS=~/code/
+
+function p() {
+    cd $PROJECTS/$1
+}
+
+compdef '_files -W $PROJECTS -/' p
