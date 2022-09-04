@@ -32,3 +32,5 @@ link-file "kitty/kitty-themes" "${HOME}/.config/kitty/kitty-themes" "$1"
 
 mkdir -p  "${HOME}/.fonts"
 link-file "fonts/local.conf" "${HOME}/.fonts/local.conf" "$1"
+
+link-file "asdfrc" "${HOME}/.adsfrc" "$1"
