@@ -25,6 +25,7 @@ Plug 'vim-ruby/vim-ruby'
 Plug 'jparise/vim-graphql'
 Plug 'geverding/vim-hocon'
 Plug 'Vimjas/vim-python-pep8-indent'
+Plug 'bps/vim-textobj-python'
 
 " Initialize plugin system
 call plug#end()
