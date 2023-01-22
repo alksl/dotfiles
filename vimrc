@@ -163,8 +163,8 @@ let g:ale_ruby_rubocop_options = '--except RSpec/Focus'
 let g:ale_python_isort_options = '--profile black'
 
 " Configure host programs for NeoVim
-let g:python_host_prog = expand("~/.pyenv/versions/2.7.17/bin/python2")
-let g:node_host_prog = expand("~/.nvm/versions/node/v12.15.0/bin/neovim-node-host")
+let g:python_host_prog = expand("~/.asdf/shims/python")
+let g:node_host_prog = expand("~/.asdf/shims/neovim-node-host")
 
 " Configure GitGutter
 let g:gitgutter_set_sign_backgrounds = 1
