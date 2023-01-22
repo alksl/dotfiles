@@ -154,12 +154,13 @@ let g:ale_fixers = {
 \   'python': [
 \     'black',
 \     'isort',
-\   ],
-\
+\   ]
 \}
+
 let g:ale_fix_on_save = 1
 let g:ale_enabled = 1
 let g:ale_ruby_rubocop_options = '--except RSpec/Focus'
+let g:ale_python_isort_options = '--profile black'
 
 " Configure host programs for NeoVim
 let g:python_host_prog = expand("~/.pyenv/versions/2.7.17/bin/python2")
