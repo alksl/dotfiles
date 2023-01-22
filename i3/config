@@ -28,6 +28,9 @@ font pango:monospace $font_size
 # screen before suspend. Use loginctl lock-session to lock your screen.
 exec --no-startup-id xss-lock --transfer-sleep-lock -- $HOME/.local/bin/lock-screen
 
+bindsym XF86MonBrightnessUp exec light -T 1.1
+bindsym XF86MonBrightnessDown exec light -T 0.9
+
 # NetworkManager is the most popular way to manage wireless networks on Linux,
 # and nm-applet is a desktop environment-independent system tray GUI for it.
 exec --no-startup-id nm-applet
