@@ -94,6 +94,15 @@ function M.setup()
       end,
     }
 
+    -- FZF
+    use { "junegunn/fzf", run = "./install --all" }
+    use { "junegunn/fzf.vim" }
+    use {
+      "ibhagwan/fzf-lua",
+      event = "BufEnter",
+      requires = { "kyazdani42/nvim-web-devicons" },
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()

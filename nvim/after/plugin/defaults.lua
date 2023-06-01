@@ -17,6 +17,12 @@ opt.clipboard = "unnamedplus" -- Access system clipboard
 opt.expandtab = true
 opt.tw = 79
 
+-- Configure file search
+opt.wildignorecase = true
+opt.path:remove "/usr/include"
+opt.path:append "**"
+opt.wildignore:append "**/.git/*"
+
 -- Highlight on yank
 vim.cmd [[
   augroup YankHighlight
