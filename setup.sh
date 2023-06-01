@@ -29,6 +29,7 @@ link-file "i3/config" "${HOME}/.config/i3/config" "$1"
 link-file "kitty/kitty.conf" "${HOME}/.config/kitty/kitty.conf" "$1"
 link-file "kitty/theme.conf" "${HOME}/.config/kitty/theme.conf" "$1"
 link-file "kitty/kitty-themes" "${HOME}/.config/kitty/kitty-themes" "$1"
+link-file "nvim" "${HOME}/.config/nvim"
 
 mkdir -p  "${HOME}/.fonts"
 link-file "fonts/local.conf" "${HOME}/.fonts/local.conf" "$1"
