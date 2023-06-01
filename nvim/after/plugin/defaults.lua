@@ -14,6 +14,7 @@ opt.undofile = true --Save undo history
 opt.updatetime = 250 --Decrease update time
 opt.signcolumn = "yes" -- Always show sign column
 opt.clipboard = "unnamedplus" -- Access system clipboard
+opt.expandtab = true
 
 -- Highlight on yank
 vim.cmd [[
