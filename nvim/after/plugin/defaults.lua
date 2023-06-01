@@ -15,6 +15,7 @@ opt.updatetime = 250 --Decrease update time
 opt.signcolumn = "yes" -- Always show sign column
 opt.clipboard = "unnamedplus" -- Access system clipboard
 opt.expandtab = true
+opt.tw = 79
 
 -- Highlight on yank
 vim.cmd [[
