@@ -120,3 +120,5 @@ source /opt/asdf-vm/asdf.sh
 if [[ -d "${HOME}/.zsh.local" ]]; then
   source "${HOME}/.zsh.local"
 fi
+
+HUSKY=0
