@@ -1,3 +1,4 @@
 vim/plugged
 vim/spell
 nvim/plugin/packer_compiled.lua
+nvim/lua/.luarc.json

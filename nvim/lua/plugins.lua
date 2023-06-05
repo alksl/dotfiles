@@ -42,6 +42,18 @@ function M.setup()
   local function plugins(use)
     use { "wbthomason/packer.nvim" }
 
+    use { "nvim-lua/plenary.nvim", module = "plenary" }
+
+    -- Notification
+    use {
+      "rcarriga/nvim-notify",
+      event = "VimEnter",
+      config = function()
+        vim.notify = require "notify"
+      end,
+    }
+
+
     -- Colorscheme
     use {
       "tanvirtin/monokai.nvim",
@@ -107,8 +119,6 @@ function M.setup()
     use {
       "ms-jpq/coq_nvim",
       branch = "coq",
-      event = "InsertEnter",
-      opt = true,
       run = ":COQdeps",
       config = function()
         require("config.coq").setup()
@@ -118,6 +128,22 @@ function M.setup()
         { "ms-jpq/coq.thirdparty", branch = "3p", module = "coq_3p" },
       },
       disable = false,
+    }
+
+    -- LSP
+    use {
+      "williamboman/mason.nvim",
+      run = ":MasonUpdate", -- :MasonUpdate updates registry contents
+    }
+    use {
+      "williamboman/mason-lspconfig.nvim",
+    }
+    use {
+      "neovim/nvim-lspconfig",
+      config = function()
+        require("config.lsp").setup()
+      end,
+      requires = { "ms-jpq/coq_nvim" },
     }
 
     if packer_bootstrap then
