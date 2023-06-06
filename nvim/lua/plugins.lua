@@ -152,6 +152,12 @@ function M.setup()
       end,
       requires = { "nvim-lua/plenary.nvim" },
     }
+    use {
+      "j-hui/fidget.nvim",
+      config = function()
+        require("fidget").setup {}
+      end,
+    }
 
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
