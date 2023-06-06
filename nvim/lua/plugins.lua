@@ -145,6 +145,13 @@ function M.setup()
       end,
       requires = { "ms-jpq/coq_nvim" },
     }
+    use {
+      "jose-elias-alvarez/null-ls.nvim",
+      config = function()
+        require("config.null-ls").setup()
+      end,
+      requires = { "nvim-lua/plenary.nvim" },
+    }
 
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
