@@ -174,6 +174,10 @@ function M.setup()
       "tpope/vim-rhubarb",
     }
 
+    -- Helpers
+    use {
+      "tpope/vim-eunuch"
+    }
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()
