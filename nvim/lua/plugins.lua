@@ -161,6 +161,11 @@ function M.setup()
       end,
     }
 
+    -- Terraform
+    use {
+      "hashivim/vim-terraform",
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()

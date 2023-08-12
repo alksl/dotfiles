@@ -16,7 +16,10 @@ function M.setup()
       lualine_a = { "mode" },
       lualine_b = { "branch", "diff", "diagnostics" },
       lualine_c = {
-        { "filename" },
+        {
+          "filename",
+          path = 1,
+        },
         {
           gps.get_location,
           cond = gps.is_available,
