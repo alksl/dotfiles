@@ -7,7 +7,7 @@ function M.setup()
   -- packer.nvim configuration
   local conf = {
     profile = {
-      enable = true, 
+      enable = true,
       -- the amount in ms that a plugins load time must be over for it to be
       -- included in the profile
       threshold = 1,
@@ -53,7 +53,6 @@ function M.setup()
       end,
     }
 
-
     -- Colorscheme
     use {
       "tanvirtin/monokai.nvim",
@@ -96,6 +95,9 @@ function M.setup()
       config = function()
         require("config.treesitter").setup()
       end,
+      requires = {
+        "RRethy/nvim-treesitter-endwise",
+      }
     }
     use {
       "SmiteshP/nvim-gps",
@@ -124,8 +126,8 @@ function M.setup()
         require("config.coq").setup()
       end,
       requires = {
-        { "ms-jpq/coq.artifacts", branch = "artifacts" },
-        { "ms-jpq/coq.thirdparty", branch = "3p", module = "coq_3p" },
+        { "ms-jpq/coq.artifacts",  branch = "artifacts" },
+        { "ms-jpq/coq.thirdparty", branch = "3p",       module = "coq_3p" },
       },
       disable = false,
     }
