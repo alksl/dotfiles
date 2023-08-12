@@ -166,6 +166,14 @@ function M.setup()
       "hashivim/vim-terraform",
     }
 
+    -- Git
+    use {
+      "tpope/vim-fugitive",
+    }
+    use {
+      "tpope/vim-rhubarb",
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()
