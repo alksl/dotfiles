@@ -178,6 +178,27 @@ function M.setup()
     use {
       "tpope/vim-eunuch"
     }
+
+    -- Testing
+    use {
+      "nvim-neotest/neotest",
+      requires = {
+        "nvim-lua/plenary.nvim",
+        "nvim-treesitter/nvim-treesitter",
+        "antoinemadec/FixCursorHold.nvim",
+        "olimorris/neotest-rspec",
+        "nvim-neotest/neotest-plenary",
+      },
+      config = function()
+        require("neotest").setup({
+          adapters = {
+            require("neotest-plenary"),
+            require("neotest-rspec"),
+          }
+        })
+      end
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()
