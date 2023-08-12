@@ -13,5 +13,5 @@ keymap("v", "<C-E>", "<End>", default_opts)
 keymap("v", "<C-c>", ":y +<CR>", default_opts)
 
 keymap("n", "<C-p>", ":FzfLua files<CR>", default_opts)
-
 keymap("n", "<C-b>", ":FzfLua buffers<CR>", default_opts)
+keymap("n", "<Leader>gs", ":Git<CR>", default_opts)
