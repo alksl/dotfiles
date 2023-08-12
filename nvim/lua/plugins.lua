@@ -145,7 +145,10 @@ function M.setup()
       config = function()
         require("config.lsp").setup()
       end,
-      requires = { "ms-jpq/coq_nvim" },
+      requires = { 
+        "ms-jpq/coq_nvim",
+        "b0o/schemastore.nvim",
+      },
     }
     use {
       "jose-elias-alvarez/null-ls.nvim",
