@@ -9,6 +9,7 @@ function M.setup()
       "solargraph",
       "jsonls",
       "yamlls",
+      "terraformls",
     }
   }
 
@@ -17,7 +18,7 @@ function M.setup()
 
 
   lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
-  lspconfig.terraform_lsp.setup(coq.lsp_ensure_capabilities())
+  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
   lspconfig.lua_ls.setup(
     coq.lsp_ensure_capabilities(
       {
