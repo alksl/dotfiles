@@ -117,6 +117,7 @@ function M.setup()
       requires = {
         "nvim-lua/plenary.nvim",
         { "nvim-telescope/telescope-fzf-native.nvim", run = "make" },
+        { "nvim-telescope/telescope-dap.nvim" },
       }
     }
 
@@ -157,7 +158,7 @@ function M.setup()
       config = function()
         require("config.lsp").setup()
       end,
-      requires = { 
+      requires = {
         "ms-jpq/coq_nvim",
         "b0o/schemastore.nvim",
       },
@@ -212,6 +213,14 @@ function M.setup()
           }
         })
       end
+    }
+
+    -- DAP
+    use { 
+      "mfussenegger/nvim-dap",
+      requires = {
+        "suketa/nvim-dap-ruby",
+      }
     }
 
     if packer_bootstrap then

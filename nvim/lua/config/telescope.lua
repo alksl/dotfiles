@@ -17,7 +17,7 @@ function M.setup()
       }
     },
   }
-  -- telescope.extensions.dap.configurations()
+  telescope.load_extension("dap")
 end
 
 return M
