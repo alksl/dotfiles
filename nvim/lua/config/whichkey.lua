@@ -48,6 +48,7 @@ function M.setup()
 
     g = {
       name = "Git",
+      g = { "<cmd>Git<cr>", "Git" },
       s = { "<cmd>lua require('telescope.builtin').git_status()<cr>", "Status" },
       c = { "<cmd>lua require('telescope.builtin').git_commits()<cr>", "Commits" },
       b = { "<cmd>lua require('telescope.builtin').git_branches()<cr>", "Branches" },
