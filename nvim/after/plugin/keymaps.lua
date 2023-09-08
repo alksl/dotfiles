@@ -12,6 +12,15 @@ keymap("v", "<C-E>", "<End>", default_opts)
 
 keymap("v", "<C-c>", ":y +<CR>", default_opts)
 
-keymap("n", "<C-p>", ":FzfLua files<CR>", default_opts)
-keymap("n", "<C-b>", ":FzfLua buffers<CR>", default_opts)
-keymap("n", "<Leader>gs", ":Git<CR>", default_opts)
+keymap(
+  "n",
+  "<C-p>",
+  "<cmd>lua require('telescope.builtin').find_files()<cr>",
+  default_opts
+)
+keymap(
+  "n",
+  "<C-b>",
+  "<cmd>lua require('telescope.builtin').buffers()<cr>",
+  default_opts
+)

@@ -10,6 +10,7 @@ function M.setup()
       "jsonls",
       "yamlls",
       "terraformls",
+      "tflint",
     }
   }
 
@@ -19,6 +20,13 @@ function M.setup()
 
   lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
   lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
+  vim.api.nvim_create_autocmd({"BufWritePre"}, {
+    pattern = {"*.tf", "*.tfvars"},
+    callback = function()
+      vim.lsp.buf.format()
+    end,
+  })
+  lspconfig.tflint.setup(coq.lsp_ensure_capabilities())
   lspconfig.lua_ls.setup(
     coq.lsp_ensure_capabilities(
       {

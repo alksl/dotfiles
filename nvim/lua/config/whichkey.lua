@@ -40,11 +40,28 @@ function M.setup()
 
     f = {
       name = "Find",
-      f = { "<cmd>lua require('utils.finder').find_files()<cr>", "Files" },
-      b = { "<cmd>FzfLua buffers<cr>", "Buffers" },
-      o = { "<cmd>FzfLua oldfiles<cr>", "Old files" },
-      g = { "<cmd>FzfLua live_grep<cr>", "Live grep" },
-      c = { "<cmd>FzfLua commands<cr>", "Commands" },
+      f = { "<cmd>lua require('telescope.builtin').find_files()<cr>", "Files" },
+      b = { "<cmd>lua require('telescope.builtin').buffers()<cr>", "Buffers" },
+      g = { "<cmd>lua require('telescope.builtin').live_grep()<cr>", "Grep" },
+      h = { "<cmd>lua require('telescope.builtin').help_tags()<cr>", "Help" },
+    },
+
+    g = {
+      name = "Git",
+      s = { "<cmd>lua require('telescope.builtin').git_status()<cr>", "Status" },
+      c = { "<cmd>lua require('telescope.builtin').git_commits()<cr>", "Commits" },
+      b = { "<cmd>lua require('telescope.builtin').git_branches()<cr>", "Branches" },
+      f = { "<cmd>lua require('utils.git').git_fixup()<cr>", "Fixup" },
+    },
+
+    l = {
+      name = "LSP",
+      r = { "<cmd>lua require('telescope.builtin').lsp_references()<cr>", "References" },
+      d = { "<cmd>lua require('telescope.builtin').lsp_definitions()<cr>", "Definitions" },
+      t = { "<cmd>lua require('telescope.builtin').lsp_type_definitions()<cr>", "Type Definitions" },
+      i = { "<cmd>lua require('telescope.builtin').lsp_implementations()<cr>", "Implementations" },
+      s = { "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", "Document Symbols" },
+      w = { "<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", "Workspace symbols" },
     },
 
     t = {

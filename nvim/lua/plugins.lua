@@ -108,6 +108,18 @@ function M.setup()
       end,
     }
 
+    -- Telescope
+    use {
+      "nvim-telescope/telescope.nvim", tag = "0.1.2",
+      config = function()
+        require("config.telescope").setup()
+      end,
+      requires = {
+        "nvim-lua/plenary.nvim",
+        { "nvim-telescope/telescope-fzf-native.nvim", run = "make" },
+      }
+    }
+
     -- FZF
     use { "junegunn/fzf", run = "./install --all" }
     use { "junegunn/fzf.vim" }
