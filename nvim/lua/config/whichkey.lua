@@ -58,6 +58,14 @@ function M.setup()
 
     d = { "<cmd>lua require('telescope.builtin').diagnostics()<cr>", "Diagnostics" },
 
+    c  = {
+      name = "Quickfix",
+      n = { "<cmd>cnext<cr>", "Next" },
+      p = { "<cmd>cprev<cr>", "Prev" },
+      o = { "<cmd>copen<cr>", "Close" },
+      c = { "<cmd>cclose<cr>", "Open" },
+    },
+
     l = {
       name = "LSP",
       r = { "<cmd>lua require('telescope.builtin').lsp_references()<cr>", "References" },
@@ -81,7 +89,6 @@ function M.setup()
       S = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
       s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Summary" },
     },
-
   }
 
   whichkey.setup(conf)
