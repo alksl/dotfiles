@@ -56,6 +56,8 @@ function M.setup()
       f = { "<cmd>lua require('utils.git').git_fixup()<cr>", "Fixup" },
     },
 
+    d = { "<cmd>lua require('telescope.builtin').diagnostics()<cr>", "Diagnostics" },
+
     l = {
       name = "LSP",
       r = { "<cmd>lua require('telescope.builtin').lsp_references()<cr>", "References" },
