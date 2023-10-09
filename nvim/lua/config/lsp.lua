@@ -12,6 +12,7 @@ function M.setup()
       "terraformls",
       "tflint",
       "bashls",
+      "pyright",
     }
   }
 
@@ -78,6 +79,7 @@ function M.setup()
     },
   }
   lspconfig.bashls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
 
   -- Global mappings.
   -- See `:help vim.diagnostic.*` for documentation on any of the below functions
