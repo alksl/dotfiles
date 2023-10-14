@@ -178,6 +178,11 @@ function M.setup()
       end,
     }
 
+    -- GraphQL
+    use {
+      "jparise/vim-graphql"
+    }
+
     -- Terraform
     use {
       "hashivim/vim-terraform",
@@ -217,7 +222,7 @@ function M.setup()
     }
 
     -- DAP
-    use { 
+    use {
       "mfussenegger/nvim-dap",
       requires = {
         "suketa/nvim-dap-ruby",
