@@ -189,7 +189,10 @@ bar {
 }
 
 bindsym Control+Print exec gnome-screenshot -i
-bindsym $mod+c exec google-chrome-stable
+
+bindsym $mod+Control+c exec google-chrome-stable
+bindsym $mod+c exec google-chrome-stable --profile-directory=Default
+
 bindsym $mod+x exec $HOME/.local/bin/lock-screen
 
 bindsym $mod+Shift+m move workspace to output left
