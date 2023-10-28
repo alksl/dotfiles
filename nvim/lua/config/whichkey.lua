@@ -20,8 +20,8 @@ function M.setup()
   }
 
   local mappings = {
-    ["w"] = { "<cmd>update!<CR>", "Save" },
-    ["q"] = { "<cmd>q!<CR>", "Quit" },
+    w = { "<cmd>update!<CR>", "Save" },
+    q = { "<cmd>q!<CR>", "Quit" },
 
     b = {
       name = "Buffer",
@@ -89,6 +89,14 @@ function M.setup()
       S = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
       s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Summary" },
     },
+
+    r = {
+      name = "REPL",
+      s = { "<cmd>IronRepl<cr>", "Start" },
+      r = { "<cmd>IronRestart<cr>", "Restart" },
+      f = { "<cmd>IronFocus<cr>", "Focus" },
+      h = { "<cmd>IronHide<cr>", "Hide" }
+    }
   }
 
   whichkey.setup(conf)

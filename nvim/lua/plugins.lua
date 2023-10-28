@@ -229,6 +229,19 @@ function M.setup()
       }
     }
 
+    -- REPL
+    use {
+      "Vigemus/iron.nvim",
+      config = function()
+        require("config.iron").setup()
+      end
+    }
+
+    -- Rust
+    use {
+      "rust-lang/rust.vim",
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()
