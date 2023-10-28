@@ -80,6 +80,11 @@ function M.setup()
   }
   lspconfig.bashls.setup(coq.lsp_ensure_capabilities())
   lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
+  lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities({
+    settings = {
+      ["rust_analyzer"] = {},
+    }
+  }))
 
   -- Global mappings.
   -- See `:help vim.diagnostic.*` for documentation on any of the below functions
