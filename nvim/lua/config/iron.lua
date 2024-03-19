@@ -15,6 +15,10 @@ function M.setup()
           command = { "zsh" }
         },
         python = require("iron.fts.python").ipython,
+
+        ruby = {
+          command = { "./bin/rails", "console" },
+        },
       },
       -- How the repl window will be displayed
       -- See below for more information
