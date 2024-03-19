@@ -6,32 +6,45 @@ function M.setup()
     ensure_installed = {
       "lua_ls",
       "rust_analyzer",
-      "solargraph",
+      "ruby_ls",
       "jsonls",
       "yamlls",
       "terraformls",
       "tflint",
       "bashls",
       "pyright",
+      "ruff_lsp",
+      "rubocop",
     }
   }
 
   local lspconfig = require("lspconfig")
   local coq = require("coq")
+  local navic = require("nvim-navic")
+
+  local on_attach = function(client, bufnr)
+      if client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+      end
+  end
+  local opts = {
+    on_attach = on_attach
+  }
 
 
-  lspconfig.solargraph.setup(coq.lsp_ensure_capabilities())
-  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities())
+  lspconfig.ruby_ls.setup(coq.lsp_ensure_capabilities(opts))
+  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities(opts))
   vim.api.nvim_create_autocmd({"BufWritePre"}, {
-    pattern = {"*.tf", "*.tfvars"},
+    pattern = {"*.py", "*.tf", "*.tfvars", "*.rb"},
     callback = function()
       vim.lsp.buf.format()
     end,
   })
-  lspconfig.tflint.setup(coq.lsp_ensure_capabilities())
+  lspconfig.tflint.setup(coq.lsp_ensure_capabilities(opts))
   lspconfig.lua_ls.setup(
     coq.lsp_ensure_capabilities(
       {
+        on_attach = on_attach,
         settings = {
           Lua = {
             runtime = {
@@ -78,9 +91,18 @@ function M.setup()
       },
     },
   }
-  lspconfig.bashls.setup(coq.lsp_ensure_capabilities())
-  lspconfig.pyright.setup(coq.lsp_ensure_capabilities())
+  lspconfig.bashls.setup(coq.lsp_ensure_capabilities(opts))
+  lspconfig.pyright.setup(coq.lsp_ensure_capabilities(opts))
+  lspconfig.ruff_lsp.setup(coq.lsp_ensure_capabilities({
+    on_attach = on_attach,
+    init_options = {
+      settings = {
+        args = {}
+      }
+    }
+  }))
   lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities({
+    on_attach = on_attach,
     settings = {
       ["rust_analyzer"] = {},
     }
@@ -106,24 +128,25 @@ function M.setup()
 
         -- Buffer local mappings.
         -- See `:help vim.lsp.*` for documentation on any of the below functions
-        local opts = { buffer = ev.buf }
-        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-        vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-        vim.keymap.set('n', '<Leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-        vim.keymap.set('n', '<Leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+        local key_opts = { buffer = ev.buf }
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, key_opts)
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, key_opts)
+        vim.keymap.set('n', 'K', vim.lsp.buf.hover, key_opts)
+        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, key_opts)
+        vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, key_opts)
+        vim.keymap.set('n', '<Leader>wa', vim.lsp.buf.add_workspace_folder, key_opts)
+        vim.keymap.set('n', '<Leader>wr', vim.lsp.buf.remove_workspace_folder, key_opts)
         vim.keymap.set('n', '<Leader>wl', function()
           print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-        end, opts)
-        vim.keymap.set('n', '<Leader>D', vim.lsp.buf.type_definition, opts)
-        vim.keymap.set('n', '<Leader>rn', vim.lsp.buf.rename, opts)
-        vim.keymap.set({ 'n', 'v' }, '<Leader>ca', vim.lsp.buf.code_action, opts)
-        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+        end, key_opts)
+        vim.keymap.set('n', '<Leader>D', vim.lsp.buf.type_definition, key_opts)
+        vim.keymap.set('n', '<Leader>rn', vim.lsp.buf.rename, key_opts)
+        vim.keymap.set({ 'n', 'v' }, '<Leader>ca', vim.lsp.buf.code_action, key_opts)
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, key_opts)
         vim.keymap.set('n', '<Leader>f', function()
           vim.lsp.buf.format { async = true }
-        end, opts)
+        end, key_opts)
+        vim.keymap.set('n', '<Leader>ca', vim.lsp.buf.code_action, key_opts)
       end,
   })
 end

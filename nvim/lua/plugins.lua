@@ -85,7 +85,16 @@ function M.setup()
       config = function()
         require("config.lualine").setup()
       end,
-      requires = { "nvim-web-devicons" },
+      requires = {
+        "nvim-web-devicons",
+        "SmiteshP/nvim-navic",
+      },
+    }
+    use {
+      "SmiteshP/nvim-navic",
+      requires = {
+        "neovim/nvim-lspconfig",
+      },
     }
 
     -- Treesitter
@@ -98,14 +107,6 @@ function M.setup()
       requires = {
         "RRethy/nvim-treesitter-endwise",
       }
-    }
-    use {
-      "SmiteshP/nvim-gps",
-      requires = "nvim-treesitter/nvim-treesitter",
-      module = "nvim-gps",
-      config = function()
-        require("nvim-gps").setup()
-      end,
     }
 
     -- Telescope
