@@ -218,12 +218,18 @@ function M.setup()
         "antoinemadec/FixCursorHold.nvim",
         "olimorris/neotest-rspec",
         "nvim-neotest/neotest-plenary",
+        "nvim-neotest/neotest-python",
       },
       config = function()
         require("neotest").setup({
           adapters = {
             require("neotest-plenary"),
             require("neotest-rspec"),
+            require("neotest-python")({
+              dap = { justMyCode = false },
+              test_command = "pytest",
+              test_file_pattern = "test_*.py",
+            })
           }
         })
       end
@@ -232,9 +238,30 @@ function M.setup()
     -- DAP
     use {
       "mfussenegger/nvim-dap",
+    }
+    use {
+      "suketa/nvim-dap-ruby",
       requires = {
-        "suketa/nvim-dap-ruby",
-      }
+        "mfussenegger/nvim-dap",
+      },
+    }
+    use {
+      "mfussenegger/nvim-dap-python",
+      requires = {
+        "mfussenegger/nvim-dap",
+      },
+      config = function()
+        require("dap-python").setup()
+      end,
+    }
+    use {
+      "mfussenegger/nvim-dap-ui",
+      requires = {
+        "mfussenegger/nvim-dap",
+      },
+      config = function()
+        require("dapui").setup()
+      end,
     }
 
     -- REPL
