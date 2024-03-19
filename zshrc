@@ -121,4 +121,4 @@ if [[ -d "${HOME}/.zsh.local" ]]; then
   source "${HOME}/.zsh.local"
 fi
 
-HUSKY=0
+export HUSKY=0
