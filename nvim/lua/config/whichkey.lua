@@ -96,6 +96,17 @@ function M.setup()
       r = { "<cmd>IronRestart<cr>", "Restart" },
       f = { "<cmd>IronFocus<cr>", "Focus" },
       h = { "<cmd>IronHide<cr>", "Hide" }
+    },
+
+    O = { "<cmd>Octo<cr>", "Octo" },
+
+    o = {
+      name = "Octo",
+      a = { "<cmd>Octo actions<cr>", "Actions" },
+      l = { "<cmd>Octo pr list<cr>", "PR List" },
+      o = { "<cmd>Octo pr browser<cr>", "Open" },
+      c = { "<cmd>Octo pr checks<cr>", "Checks" },
+      s = { "<cmd>Octo pr checkout<cr>", "Checkout" },
     }
   }
 
