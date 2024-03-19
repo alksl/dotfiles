@@ -2,14 +2,6 @@ local keymap = vim.api.nvim_set_keymap
 local default_opts = { noremap = true, silent = true }
 local expr_opts = { noremap = true, expr = true, silent = true }
 
-keymap("n", "<C-A>", "<Home>", default_opts)
-keymap("i", "<C-A>", "<Home>", default_opts)
-keymap("v", "<C-A>", "<Home>", default_opts)
-
-keymap("n", "<C-E>", "<End>", default_opts)
-keymap("i", "<C-E>", "<End>", default_opts)
-keymap("v", "<C-E>", "<End>", default_opts)
-
 keymap("v", "<C-c>", ":y +<CR>", default_opts)
 
 keymap(
@@ -24,3 +16,8 @@ keymap(
   "<cmd>lua require('telescope.builtin').buffers()<cr>",
   default_opts
 )
+vim.keymap.set('i', '<C-a>', 'copilot#Accept("<CR>")', {
+  expr = true,
+  replace_keycodes = false
+})
+vim.g.copilot_no_tab_map = true

@@ -18,6 +18,7 @@ function M.setup()
       deadline = 500,
       unsafe = { "rm", "poweroff", "mv" },
     },
+    { src = "copilot", short_name = "COP", accept_key = "<c-f>" },
   }
 end
 

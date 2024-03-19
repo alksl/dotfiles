@@ -235,6 +235,12 @@ function M.setup()
       "rust-lang/rust.vim",
     }
 
+
+    -- Copliot
+    use {
+      "github/copilot.vim",
+    }
+
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
       require("packer").sync()
