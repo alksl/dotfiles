@@ -7,7 +7,7 @@ keymap("v", "<C-c>", ":y +<CR>", default_opts)
 keymap(
   "n",
   "<C-p>",
-  "<cmd>lua require('telescope.builtin').find_files()<cr>",
+  "<cmd>lua require('telescope.builtin').find_files({hidden=true})<cr>",
   default_opts
 )
 keymap(

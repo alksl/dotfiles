@@ -14,7 +14,8 @@ function M.setup()
           ["<C-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
           ["<C-s>"] = actions.select_horizontal,
         }
-      }
+      },
+      file_ignore_patterns = { ".git/" }
     },
   }
   telescope.load_extension("dap")
