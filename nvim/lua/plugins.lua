@@ -219,6 +219,7 @@ function M.setup()
         "olimorris/neotest-rspec",
         "nvim-neotest/neotest-plenary",
         "nvim-neotest/neotest-python",
+        "nvim-neotest/nvim-nio",
       },
       config = function()
         require("neotest").setup({
