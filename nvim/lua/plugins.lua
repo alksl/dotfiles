@@ -285,11 +285,39 @@ function M.setup()
       "rust-lang/rust.vim",
     }
 
-
     -- Copliot
     use {
       "github/copilot.vim",
     }
+
+    use({
+      "Bryley/neoai.nvim",
+      requires = { "MunifTanjim/nui.nvim" },
+      cmd = {
+        "NeoAI",
+        "NeoAIOpen",
+        "NeoAIClose",
+        "NeoAIToggle",
+        "NeoAIContext",
+        "NeoAIContextOpen",
+        "NeoAIContextClose",
+        "NeoAIInject",
+        "NeoAIInjectCode",
+        "NeoAIInjectContext",
+        "NeoAIInjectContextCode",
+      },
+      config = function()
+        require("neoai").setup({
+          models = {
+            {
+              name = "openai",
+              model = "gpt-4-turbo", -- gpt-3.5-turbo",
+              params = nil,
+            },
+          },
+        })
+      end,
+    })
 
     if packer_bootstrap then
       print "Restart Neovim required after installation!"
