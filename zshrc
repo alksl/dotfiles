@@ -117,8 +117,8 @@ alias icat="kitty +kitten icat"
 source /opt/asdf-vm/asdf.sh
 
 # Load local zshrc
-if [[ -d "${HOME}/.zsh.local" ]]; then
-  source "${HOME}/.zsh.local"
+if [[ -f "${HOME}/.zshrc.local" ]]; then
+  source "${HOME}/.zshrc.local"
 fi
 
 export HUSKY=0
