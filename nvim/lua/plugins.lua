@@ -204,6 +204,13 @@ function M.setup()
       end,
     }
 
+    use {
+      "mattn/vim-gist",
+      requires = {
+        "mattn/webapi-vim",
+      },
+    }
+
     -- Helpers
     use {
       "tpope/vim-eunuch"
