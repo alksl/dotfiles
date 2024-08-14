@@ -6,7 +6,7 @@ function M.setup()
     ensure_installed = {
       "lua_ls",
       "rust_analyzer",
-      "ruby_ls",
+      "ruby_lsp",
       "jsonls",
       "yamlls",
       "terraformls",
@@ -32,7 +32,12 @@ function M.setup()
   }
 
 
-  lspconfig.ruby_ls.setup(coq.lsp_ensure_capabilities(opts))
+  lspconfig.ruby_lsp.setup(coq.lsp_ensure_capabilities(opts))
+  lspconfig.rubocop.setup(
+    coq.lsp_ensure_capabilities({
+      cmd = { "bundle", "exec", "rubocop", "--lsp" },
+    })
+  )
   lspconfig.terraformls.setup(coq.lsp_ensure_capabilities(opts))
   vim.api.nvim_create_autocmd({"BufWritePre"}, {
     pattern = {"*.py", "*.tf", "*.tfvars", "*.rb"},
