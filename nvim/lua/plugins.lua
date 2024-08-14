@@ -111,7 +111,7 @@ function M.setup()
 
     -- Telescope
     use {
-      "nvim-telescope/telescope.nvim", tag = "0.1.2",
+      "nvim-telescope/telescope.nvim", tag = "0.1.8",
       config = function()
         require("config.telescope").setup()
       end,
