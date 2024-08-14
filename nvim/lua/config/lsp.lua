@@ -15,6 +15,7 @@ function M.setup()
       "pyright",
       "ruff_lsp",
       "rubocop",
+      "tsserver",
     }
   }
 
@@ -32,6 +33,7 @@ function M.setup()
   }
 
 
+  lspconfig.tsserver.setup(coq.lsp_ensure_capabilities(opts))
   lspconfig.ruby_lsp.setup(coq.lsp_ensure_capabilities(opts))
   lspconfig.rubocop.setup(
     coq.lsp_ensure_capabilities({
