@@ -119,6 +119,7 @@ function M.setup()
         "nvim-lua/plenary.nvim",
         { "nvim-telescope/telescope-fzf-native.nvim", run = "make" },
         { "nvim-telescope/telescope-dap.nvim" },
+        { "nvim-telescope/telescope-project.nvim" },
       }
     }
 
