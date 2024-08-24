@@ -20,75 +20,71 @@ function M.setup()
   }
 
   local lspconfig = require("lspconfig")
-  local coq = require("coq")
   local navic = require("nvim-navic")
+  local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
   local on_attach = function(client, bufnr)
       if client.server_capabilities.documentSymbolProvider then
           navic.attach(client, bufnr)
       end
   end
+
   local opts = {
-    on_attach = on_attach
+    on_attach = on_attach,
+    capabilities = capabilities,
   }
 
-
-  lspconfig.tsserver.setup(coq.lsp_ensure_capabilities(opts))
-  lspconfig.ruby_lsp.setup(
-    coq.lsp_ensure_capabilities({
-      cmd = {"bundle", "exec", "ruby-lsp"},
-    })
-  )
-  lspconfig.rubocop.setup(
-    coq.lsp_ensure_capabilities({
-      cmd = { "bundle", "exec", "rubocop", "--lsp" },
-    })
-  )
-  lspconfig.terraformls.setup(coq.lsp_ensure_capabilities(opts))
-  vim.api.nvim_create_autocmd({"BufWritePre"}, {
-    pattern = {"*.py", "*.tf", "*.tfvars", "*.rb"},
-    callback = function()
-      vim.lsp.buf.format()
-    end,
+  lspconfig.tsserver.setup(opts)
+  lspconfig.ruby_lsp.setup({
+    capabilities = capabilities,
+    on_attach = on_attach,
+    cmd = {"bundle", "exec", "ruby-lsp"},
   })
-  lspconfig.tflint.setup(coq.lsp_ensure_capabilities(opts))
-  lspconfig.lua_ls.setup(
-    coq.lsp_ensure_capabilities(
-      {
-        on_attach = on_attach,
-        settings = {
-          Lua = {
-            runtime = {
-              -- Tell the language server which version of Lua you're 
-              -- using (most likely LuaJIT in the case of Neovim)
-              version = 'LuaJIT',
-            },
-            diagnostics = {
-              -- Get the language server to recognize the `vim` global
-              globals = {'vim'},
-            },
-            workspace = {
-              -- Make the server aware of Neovim runtime files
-              library = vim.api.nvim_get_runtime_file("", true),
-            },
-            -- Do not send telemetry data containing a randomized but unique identifier
-            telemetry = {
-              enable = false,
-            },
-          },
+  lspconfig.rubocop.setup({
+    capabilities = capabilities,
+    cmd = { "bundle", "exec", "rubocop", "--lsp" },
+  })
+  lspconfig.terraformls.setup(opts)
+  lspconfig.tflint.setup(opts)
+  lspconfig.lua_ls.setup({
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = {
+      Lua = {
+        runtime = {
+          -- Tell the language server which version of Lua you're 
+          -- using (most likely LuaJIT in the case of Neovim)
+          version = 'LuaJIT',
         },
-      }
-    )
-  )
-  lspconfig.jsonls.setup {
+        diagnostics = {
+          -- Get the language server to recognize the `vim` global
+          globals = {'vim'},
+        },
+        workspace = {
+          -- Make the server aware of Neovim runtime files
+          library = vim.api.nvim_get_runtime_file("", true),
+        },
+        -- Do not send telemetry data containing a randomized but unique identifier
+        telemetry = {
+          enable = false,
+        },
+      },
+    },
+  })
+
+  lspconfig.jsonls.setup({
+    capabilities = capabilities,
+    on_attach = on_attach,
     settings = {
       json = {
         schemas = require('schemastore').json.schemas(),
         validate = { enable = true },
       },
     },
-  }
-  lspconfig.yamlls.setup {
+  })
+  lspconfig.yamlls.setup({
+    capabilities = capabilities,
+    on_attach = on_attach,
     settings = {
       yaml = {
         schemaStore = {
@@ -101,47 +97,54 @@ function M.setup()
         schemas = require('schemastore').yaml.schemas(),
       },
     },
-  }
-  lspconfig.bashls.setup(coq.lsp_ensure_capabilities(opts))
-  lspconfig.pyright.setup(coq.lsp_ensure_capabilities(opts))
-  lspconfig.ruff_lsp.setup(coq.lsp_ensure_capabilities({
+  })
+  lspconfig.bashls.setup(opts)
+  lspconfig.pyright.setup(opts)
+  lspconfig.ruff_lsp.setup({
+    capabilities = capabilities,
     on_attach = on_attach,
     init_options = {
       settings = {
         args = {}
       }
     }
-  }))
-  lspconfig.rust_analyzer.setup(
-    coq.lsp_ensure_capabilities({
-      on_attach = function(client, bufnr)
-        if client.server_capabilities.documentSymbolProvider then
-          navic.attach(client, bufnr)
-        end
-        vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
-      end,
-      settings = {
-        ["rust_analyzer"] = {
+  })
+  lspconfig.rust_analyzer.setup({
+    capabilities = capabilities,
+    on_attach = function(client, bufnr)
+      if client.server_capabilities.documentSymbolProvider then
+        navic.attach(client, bufnr)
+      end
+      vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
+    end,
+    settings = {
+      ["rust_analyzer"] = {
+        imports = {
           imports = {
-            imports = {
-              granularity = {
-                group = "module",
-              },
-              prefix = "self",
+            granularity = {
+              group = "module",
             },
-            cargo = {
-              buildScripts = {
-                enable = true,
-              },
+            prefix = "self",
+          },
+          cargo = {
+            buildScripts = {
+              enable = true,
             },
-            procMacro = {
-              enable = true
-            },
-          }
-        },
-      }
-    })
-  )
+          },
+          procMacro = {
+            enable = true
+          },
+        }
+      },
+    }
+  })
+
+  vim.api.nvim_create_autocmd({"BufWritePre"}, {
+    pattern = {"*.py", "*.tf", "*.tfvars", "*.rb"},
+    callback = function()
+      vim.lsp.buf.format()
+    end,
+  })
 
   -- Global mappings.
   -- See `:help vim.diagnostic.*` for documentation on any of the below functions
@@ -158,8 +161,6 @@ function M.setup()
       callback = function(ev)
         -- Enable completion triggered by <c-x><c-o>
         vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-        -- Enable coq capabilities
 
         -- Buffer local mappings.
         -- See `:help vim.lsp.*` for documentation on any of the below functions

@@ -140,20 +140,36 @@ function M.setup()
       requires = { "kyazdani42/nvim-web-devicons" },
     }
 
-    -- Completion
-    use {
-      "ms-jpq/coq_nvim",
-      branch = "coq",
-      run = ":COQdeps",
+    use({
+      "hrsh7th/nvim-cmp",
       config = function()
-        require("config.coq").setup()
+        require("config.cmp").setup()
       end,
       requires = {
-        { "ms-jpq/coq.artifacts",  branch = "artifacts" },
-        { "ms-jpq/coq.thirdparty", branch = "3p",       module = "coq_3p" },
-      },
-      disable = false,
-    }
+        "hrsh7th/cmp-nvim-lsp",
+        "hrsh7th/cmp-path",
+        "hrsh7th/cmp-buffer",
+        "hrsh7th/cmp-cmdline",
+        "L3MON4D3/LuaSnip",
+        "saadparwaiz1/cmp_luasnip",
+      }
+    })
+
+
+    -- Snippets
+    use({
+      "L3MON4D3/LuaSnip",
+      -- follow latest release.
+      tag = "v2.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+      -- install jsregexp (optional!:).
+      run = "make install_jsregexp",
+      config = function()
+        require("config.luasnip").setup()
+      end,
+      requires = {
+        "rafamadriz/friendly-snippets" 
+      }
+    })
 
     -- LSP
     use {
@@ -174,7 +190,8 @@ function M.setup()
         require("config.lsp").setup()
       end,
       requires = {
-        "ms-jpq/coq_nvim",
+        -- "ms-jpq/coq_nvim",
+        "hrsh7th/cmp-nvim-lsp",
         "b0o/schemastore.nvim",
       },
     }

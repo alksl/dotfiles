@@ -6,6 +6,7 @@ function M.setup()
   whichkey.add({
     {"<leader>w", "<cmd>update!<cr>", desc = "Save", mode = "n"},
     {"<leader>d", "<cmd>lua require('telescope.builtin').diagnostics()<cr>", desc="Diagnostics" },
+    {"<leader>s", "<cmd>source ~/dotfiles/nvim/after/plugin/snippets.lua<cr>", desc="Load snippets"},
 
     {"<leader>b", group = "Buffer"},
     {"<leader>bc", "<cmd>bd!<cr>", desc ="Close current buffer"},
