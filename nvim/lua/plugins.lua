@@ -61,6 +61,14 @@ function M.setup()
       end,
     }
 
+    -- mini.nvim
+    use {
+      'echasnovski/mini.nvim',
+      config = function()
+        require("mini.icons").setup()
+      end,
+    }
+
     -- WhichKey
     use {
       "folke/which-key.nvim",

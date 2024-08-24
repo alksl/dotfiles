@@ -1,117 +1,77 @@
 local M = {}
 
 function M.setup()
-  local whichkey = require "which-key"
+  local whichkey = require("which-key")
+  whichkey.setup({})
+  whichkey.add({
+    {"<leader>w", "<cmd>update!<cr>", desc = "Save", mode = "n"},
+    {"<leader>d", "<cmd>lua require('telescope.builtin').diagnostics()<cr>", desc="Diagnostics" },
 
-  local conf = {
-    window = {
-      border = "single", -- none, single, double, shadow
-      position = "bottom", -- bottom, top
-    },
-  }
+    {"<leader>b", group = "Buffer"},
+    {"<leader>bc", "<cmd>bd!<cr>", desc ="Close current buffer"},
+    {"<leader>bD", "<cmd>%bd | e# | bd#<cr>", desc ="Delete all buffers"},
 
-  local opts = {
-    mode = "n", -- Normal mode
-    prefix = "<leader>",
-    buffer = nil, -- Global mappings. Specify a buffer number for buffer local mappings
-    silent = true, -- use `silent` when creating keymaps
-    noremap = true, -- use `noremap` when creating keymaps
-    nowait = false, -- use `nowait` when creating keymaps
-  }
+    {"<leader>p", group = "Packer"},
+    {"<leader>pc", "<cmd>PackerCompile<cr>", desc = "Compile" },
+    {"<leader>pi", "<cmd>PackerInstall<cr>", desc = "Install" },
+    {"<leader>ps", "<cmd>PackerSync<cr>", desc = "Sync" },
+    {"<leader>pS", "<cmd>PackerStatus<cr>", desc = "Status" },
+    {"<leader>pu", "<cmd>PackerUpdate<cr>", desc = "Update" },
 
-  local mappings = {
-    w = { "<cmd>update!<CR>", "Save" },
-    q = { "<cmd>q!<CR>", "Quit" },
+    {"<leader>f", group = "Find"},
+    {"<leader>ff", "<cmd>lua require('telescope.builtin').find_files()<cr>", desc = "Files" },
+    {"<leader>fb", "<cmd>lua require('telescope.builtin').buffers()<cr>", desc = "Buffers" },
+    {"<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>", desc = "Grep" },
+    {"<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>", desc = "Help" },
 
-    b = {
-      name = "Buffer",
-      c = { "<Cmd>bd!<Cr>", "Close current buffer" },
-      D = { "<Cmd>%bd|e#|bd#<Cr>", "Delete all buffers" },
-    },
+    {"<leader>g", group = "Git"},
+    {"<leader>gg", "<cmd>Git<cr>", desc = "Git"},
+    {"<leader>gp", "<cmd>Git push<cr>", desc = "Push" },
+    {"<leader>gs", "<cmd>lua require('telescope.builtin').git_status()<cr>", desc = "Status" },
+    {"<leader>gc", "<cmd>lua require('telescope.builtin').git_commits()<cr>", desc = "Commits" },
+    {"<leader>gb", "<cmd>lua require('telescope.builtin').git_branches()<cr>", desc = "Branches" },
+    {"<leader>gf", "<cmd>lua require('utils.git').git_fixup()<cr>", desc = "Fixup" },
 
-    p = {
-      name = "Packer",
-      c = { "<cmd>PackerCompile<cr>", "Compile" },
-      i = { "<cmd>PackerInstall<cr>", "Install" },
-      s = { "<cmd>PackerSync<cr>", "Sync" },
-      S = { "<cmd>PackerStatus<cr>", "Status" },
-      u = { "<cmd>PackerUpdate<cr>", "Update" },
-    },
+    {"<leader>q", group = "Quickfix"},
+    {"<leader>qn", {"<cmd>cnext<cr>", desc = "Next" }},
+    {"<leader>qp", {"<cmd>cprev<cr>", desc = "Prev" }},
+    {"<leader>qo", {"<cmd>copen<cr>", desc = "Close" }},
+    {"<leader>qc", {"<cmd>cclose<cr>", desc = "Open" }},
 
-    f = {
-      name = "Find",
-      f = { "<cmd>lua require('telescope.builtin').find_files()<cr>", "Files" },
-      b = { "<cmd>lua require('telescope.builtin').buffers()<cr>", "Buffers" },
-      g = { "<cmd>lua require('telescope.builtin').live_grep()<cr>", "Grep" },
-      h = { "<cmd>lua require('telescope.builtin').help_tags()<cr>", "Help" },
-    },
+    {"<leader>l", group = "LSP"},
+    {"<leader>lr", "<cmd>lua require('telescope.builtin').lsp_references()<cr>", desc = "References"},
+    {"<leader>ld", "<cmd>lua require('telescope.builtin').lsp_definitions()<cr>", desc = "Definitions" },
+    {"<leader>lt", "<cmd>lua require('telescope.builtin').lsp_type_definitions()<cr>", desc = "Type Definitions" },
+    {"<leader>li", "<cmd>lua require('telescope.builtin').lsp_implementations()<cr>", desc = "Implementations" },
+    {"<leader>ls", "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", desc = "Document Symbols" },
+    {"<leader>lw", "<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", desc = "Workspace symbols" },
 
-    g = {
-      name = "Git",
-      g = { "<cmd>Git<cr>", "Git" },
-      p = { "<cmd>Git push <cr>", "Git push" },
-      s = { "<cmd>lua require('telescope.builtin').git_status()<cr>", "Status" },
-      c = { "<cmd>lua require('telescope.builtin').git_commits()<cr>", "Commits" },
-      b = { "<cmd>lua require('telescope.builtin').git_branches()<cr>", "Branches" },
-      f = { "<cmd>lua require('utils.git').git_fixup()<cr>", "Fixup" },
-    },
+    {"<leader>t", group = "Neotest"},
+    {"<leader>ta", "<cmd>lua require('neotest').run.attach()<cr>", desc = "Attach" },
+    {"<leader>tf", "<cmd>w<cr><cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>", desc = "Run File" },
+    {"<leader>tF", "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), strategy = 'dap'})<cr>", desc = "Debug File" },
+    {"<leader>tl", "<cmd>lua require('neotest').run.run_last()<cr>", desc = "Run Last" },
+    {"<leader>tL", "<cmd>lua require('neotest').run.run_last({ strategy = 'dap' })<cr>", desc = "Debug Last" },
+    {"<leader>tn", "<cmd>w<cr><cmd>lua require('neotest').run.run()<cr>", desc = "Run Nearest" },
+    {"<leader>tN", "<cmd>lua require('neotest').run.run({strategy = 'dap'})<cr>", desc = "Debug Nearest" },
+    {"<leader>to", "<cmd>lua require('neotest').output.open({ enter = true })<cr>", desc = "Output" },
+    {"<leader>tS", "<cmd>lua require('neotest').run.stop()<cr>", desc = "Stop" },
+    {"<leader>ts", "<cmd>lua require('neotest').summary.toggle()<cr>", desc = "Summary" },
 
-    d = { "<cmd>lua require('telescope.builtin').diagnostics()<cr>", "Diagnostics" },
+    {"<leader>O", "<cmd>Octo<cr>"},
+    {"<leader>o", group = "Octo"},
+    {"<leader>oa",  "<cmd>Octo actions<cr>", desc = "Actions" },
+    {"<leader>ol",  "<cmd>Octo pr list<cr>", desc = "PR List" },
+    {"<leader>oo",  "<cmd>Octo pr browser<cr>", desc = "Open" },
+    {"<leader>oc",  "<cmd>Octo pr checks<cr>", desc = "Checks" },
+    {"<leader>os",  "<cmd>Octo pr checkout<cr>", desc = "Checkout" },
 
-    c  = {
-      name = "Quickfix",
-      n = { "<cmd>cnext<cr>", "Next" },
-      p = { "<cmd>cprev<cr>", "Prev" },
-      o = { "<cmd>copen<cr>", "Close" },
-      c = { "<cmd>cclose<cr>", "Open" },
-    },
-
-    l = {
-      name = "LSP",
-      r = { "<cmd>lua require('telescope.builtin').lsp_references()<cr>", "References" },
-      d = { "<cmd>lua require('telescope.builtin').lsp_definitions()<cr>", "Definitions" },
-      t = { "<cmd>lua require('telescope.builtin').lsp_type_definitions()<cr>", "Type Definitions" },
-      i = { "<cmd>lua require('telescope.builtin').lsp_implementations()<cr>", "Implementations" },
-      s = { "<cmd>lua require('telescope.builtin').lsp_document_symbols()<cr>", "Document Symbols" },
-      w = { "<cmd>lua require('telescope.builtin').lsp_workspace_symbols()<cr>", "Workspace symbols" },
-    },
-
-    t = {
-      name = "Neotest",
-      a = { "<cmd>lua require('neotest').run.attach()<cr>", "Attach" },
-      f = { "<cmd>w<cr><cmd>lua require('neotest').run.run(vim.fn.expand('%'))<cr>", "Run File" },
-      F = { "<cmd>lua require('neotest').run.run({vim.fn.expand('%'), strategy = 'dap'})<cr>", "Debug File" },
-      l = { "<cmd>lua require('neotest').run.run_last()<cr>", "Run Last" },
-      L = { "<cmd>lua require('neotest').run.run_last({ strategy = 'dap' })<cr>", "Debug Last" },
-      n = { "<cmd>w<cr><cmd>lua require('neotest').run.run()<cr>", "Run Nearest" },
-      N = { "<cmd>lua require('neotest').run.run({strategy = 'dap'})<cr>", "Debug Nearest" },
-      o = { "<cmd>lua require('neotest').output.open({ enter = true })<cr>", "Output" },
-      S = { "<cmd>lua require('neotest').run.stop()<cr>", "Stop" },
-      s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Summary" },
-    },
-
-    r = {
-      name = "REPL",
-      s = { "<cmd>IronRepl<cr>", "Start" },
-      r = { "<cmd>IronRestart<cr>", "Restart" },
-      f = { "<cmd>IronFocus<cr>", "Focus" },
-      h = { "<cmd>IronHide<cr>", "Hide" }
-    },
-
-    O = { "<cmd>Octo<cr>", "Octo" },
-
-    o = {
-      name = "Octo",
-      a = { "<cmd>Octo actions<cr>", "Actions" },
-      l = { "<cmd>Octo pr list<cr>", "PR List" },
-      o = { "<cmd>Octo pr browser<cr>", "Open" },
-      c = { "<cmd>Octo pr checks<cr>", "Checks" },
-      s = { "<cmd>Octo pr checkout<cr>", "Checkout" },
-    }
-  }
-
-  whichkey.setup(conf)
-  whichkey.register(mappings, opts)
+    {"<leader>r>", group = "REPL"},
+    {"<leader>rs", "<cmd>IronRepl<cr>", desc = "Start" },
+    {"<leader>rr", "<cmd>IronRestart<cr>", desc = "Restart" },
+    {"<leader>rf", "<cmd>IronFocus<cr>", desc = "Focus" },
+    {"<leader>rh", "<cmd>IronHide<cr>", desc = "Hide" },
+  })
 end
 
 return M
