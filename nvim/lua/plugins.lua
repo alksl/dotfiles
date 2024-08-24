@@ -159,6 +159,11 @@ function M.setup()
     use {
       "williamboman/mason.nvim",
       run = ":MasonUpdate", -- :MasonUpdate updates registry contents
+      config = function()
+        require("mason").setup({
+          PATH = "append", -- Prioritize system executables if available
+        })
+      end
     }
     use {
       "williamboman/mason-lspconfig.nvim",

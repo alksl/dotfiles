@@ -112,12 +112,36 @@ function M.setup()
       }
     }
   }))
-  lspconfig.rust_analyzer.setup(coq.lsp_ensure_capabilities({
-    on_attach = on_attach,
-    settings = {
-      ["rust_analyzer"] = {},
-    }
-  }))
+  lspconfig.rust_analyzer.setup(
+    coq.lsp_ensure_capabilities({
+      on_attach = function(client, bufnr)
+        if client.server_capabilities.documentSymbolProvider then
+          navic.attach(client, bufnr)
+        end
+        vim.lsp.inlay_hint.enable(true, {bufnr = bufnr})
+      end,
+      settings = {
+        ["rust_analyzer"] = {
+          imports = {
+            imports = {
+              granularity = {
+                group = "module",
+              },
+              prefix = "self",
+            },
+            cargo = {
+              buildScripts = {
+                enable = true,
+              },
+            },
+            procMacro = {
+              enable = true
+            },
+          }
+        },
+      }
+    })
+  )
 
   -- Global mappings.
   -- See `:help vim.diagnostic.*` for documentation on any of the below functions
