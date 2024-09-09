@@ -15,7 +15,7 @@ function M.setup()
       "pyright",
       "ruff_lsp",
       "rubocop",
-      "tsserver",
+      "ts_ls",
     }
   }
 
@@ -34,7 +34,7 @@ function M.setup()
     capabilities = capabilities,
   }
 
-  lspconfig.tsserver.setup(opts)
+  lspconfig.ts_ls.setup(opts)
   lspconfig.ruby_lsp.setup({
     capabilities = capabilities,
     on_attach = on_attach,
