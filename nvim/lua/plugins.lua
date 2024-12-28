@@ -321,6 +321,18 @@ function M.setup()
       "github/copilot.vim",
     }
 
+    -- Parrot, OpenAI, Claude
+    use {
+      "frankroeder/parrot.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "ibhagwan/fzf-lua",
+      },
+      config = function()
+        require("config.parrot").setup()
+      end,
+    }
+
     use({
       "Bryley/neoai.nvim",
       requires = { "MunifTanjim/nui.nvim" },

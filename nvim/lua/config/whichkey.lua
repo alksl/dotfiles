@@ -66,6 +66,19 @@ function M.setup()
     {"<leader>rr", "<cmd>IronRestart<cr>", desc = "Restart" },
     {"<leader>rf", "<cmd>IronFocus<cr>", desc = "Focus" },
     {"<leader>rh", "<cmd>IronHide<cr>", desc = "Hide" },
+
+    {"<leader>c", group = "Chat"},
+    {"<leader>cn", "<cmd>PrtChatNew<cr>", desc = "New", mode = "n" },
+    {"<leader>cs", "<cmd>PrtChatRespond<cr>", desc = "Trigger Response", mode = "n" },
+    {"<leader>ct", "<cmd>PrtChatToggle<cr>", desc = "Toggle", mode = "n" },
+    {"<leader>cd", "<cmd>PrtChatDelete<cr>", desc = "Delete", mode = "n" },
+    {"<leader>cf", "<cmd>PrtChatFinder<cr>", desc = "Find", mode = "n" },
+    {"<leader>cp", "<cmd>PrtProvider<cr>", desc = "Provider", mode = "n" },
+    {"<leader>cr", "<cmd>'<,'>PrtRewrite<cr>", desc = "Rewrite", mode = "v" },
+    {"<leader>ci", "<cmd>'<,'>PrtImplement<cr>", desc = "Implement", mode = "v" },
+    {"<leader>ca", "<cmd>'<,'>PrtAppend<cr>", desc = "Append", mode = "v" },
+    {"<leader>ce", "<cmd>'<,'>PrtEdit<cr>", desc = "Edit", mode = "v" },
+    {"<leader>cp", "<cmd>'<,'>PrtChatPaste<cr>", desc = "Paste", mode = "v" },
   })
 end
 
