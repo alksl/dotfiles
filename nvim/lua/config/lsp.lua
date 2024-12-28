@@ -13,7 +13,7 @@ function M.setup()
       "tflint",
       "bashls",
       "pyright",
-      "ruff_lsp",
+      "ruff",
       "rubocop",
       "ts_ls",
     }
@@ -100,7 +100,7 @@ function M.setup()
   })
   lspconfig.bashls.setup(opts)
   lspconfig.pyright.setup(opts)
-  lspconfig.ruff_lsp.setup({
+  lspconfig.ruff.setup({
     capabilities = capabilities,
     on_attach = on_attach,
     init_options = {
@@ -177,12 +177,12 @@ function M.setup()
         end, key_opts)
         vim.keymap.set('n', '<Leader>D', vim.lsp.buf.type_definition, key_opts)
         vim.keymap.set('n', '<Leader>rn', vim.lsp.buf.rename, key_opts)
-        vim.keymap.set({ 'n', 'v' }, '<Leader>ca', vim.lsp.buf.code_action, key_opts)
+        vim.keymap.set({ 'n', 'v' }, '<Leader>la', vim.lsp.buf.code_action, key_opts)
         vim.keymap.set('n', 'gr', vim.lsp.buf.references, key_opts)
         vim.keymap.set('n', '<Leader>f', function()
           vim.lsp.buf.format { async = true }
         end, key_opts)
-        vim.keymap.set('n', '<Leader>ca', vim.lsp.buf.code_action, key_opts)
+        vim.keymap.set('n', '<Leader>la', vim.lsp.buf.code_action, key_opts)
       end,
   })
 end
