@@ -33,12 +33,6 @@ function M.setup()
     {"<leader>gb", "<cmd>lua require('telescope.builtin').git_branches()<cr>", desc = "Branches" },
     {"<leader>gf", "<cmd>lua require('utils.git').git_fixup()<cr>", desc = "Fixup" },
 
-    {"<leader>q", group = "Quickfix"},
-    {"<leader>qn", {"<cmd>cnext<cr>", desc = "Next" }},
-    {"<leader>qp", {"<cmd>cprev<cr>", desc = "Prev" }},
-    {"<leader>qo", {"<cmd>copen<cr>", desc = "Close" }},
-    {"<leader>qc", {"<cmd>cclose<cr>", desc = "Open" }},
-
     {"<leader>l", group = "LSP"},
     {"<leader>lr", "<cmd>lua require('telescope.builtin').lsp_references()<cr>", desc = "References"},
     {"<leader>ld", "<cmd>lua require('telescope.builtin').lsp_definitions()<cr>", desc = "Definitions" },

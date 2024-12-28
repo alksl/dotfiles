@@ -26,3 +26,6 @@ vim.keymap.set('i', '<C-a>', 'copilot#Accept("<CR>")', {
   replace_keycodes = false
 })
 vim.g.copilot_no_tab_map = true
+
+vim.keymap.set("n", "[q", "<cmd>cprev<cr>", default_opts)
+vim.keymap.set("n", "]q", "<cmd>cnext<cr>", default_opts)
