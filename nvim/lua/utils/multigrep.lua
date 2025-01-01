@@ -2,6 +2,7 @@ local pickers = require("telescope.pickers")
 local finders = require("telescope.finders")
 local conf = require("telescope.config").values
 local sorters = require("telescope.sorters")
+local make_entry = require("telescope.make_entry")
 local M = {}
 
 M.live_multigrep = function(opts)
@@ -36,8 +37,11 @@ M.live_multigrep = function(opts)
           "--smart-case"
         },
       }
-    end
+    end,
+    entry_maker = make_entry.gen_from_vimgrep(opts),
+    cwd = opts.cwd,
   }
+
   pickers.new(opts, {
     debounce = 100,
     prompt_title = "Multi Grep",
