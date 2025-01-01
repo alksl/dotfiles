@@ -1,0 +1,6 @@
+theme = Monokai Soda
+font-family = "Source Code Pro"
+font-feature = -liga
+font-feature = -calt
+font-feature = -dlig
+window-decoration = false
