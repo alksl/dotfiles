@@ -22,7 +22,7 @@ function M.setup()
     {"<leader>f", group = "Find"},
     {"<leader>ff", "<cmd>lua require('telescope.builtin').find_files()<cr>", desc = "Files" },
     {"<leader>fb", "<cmd>lua require('telescope.builtin').buffers()<cr>", desc = "Buffers" },
-    {"<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>", desc = "Grep" },
+    {"<leader>fg", "<cmd>lua require('utils.multigrep').live_multigrep()<cr>", desc = "Multi Grep" },
     {"<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>", desc = "Help" },
 
     {"<leader>g", group = "Git"},
