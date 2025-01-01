@@ -54,12 +54,6 @@ function M.setup()
     {"<leader>oc",  "<cmd>Octo pr checks<cr>", desc = "Checks" },
     {"<leader>os",  "<cmd>Octo pr checkout<cr>", desc = "Checkout" },
 
-    {"<leader>r>", group = "REPL"},
-    {"<leader>rs", "<cmd>IronRepl<cr>", desc = "Start" },
-    {"<leader>rr", "<cmd>IronRestart<cr>", desc = "Restart" },
-    {"<leader>rf", "<cmd>IronFocus<cr>", desc = "Focus" },
-    {"<leader>rh", "<cmd>IronHide<cr>", desc = "Hide" },
-
     {"<leader>c", group = "Chat"},
     {"<leader>cn", "<cmd>PrtChatNew<cr>", desc = "New", mode = "n" },
     {"<leader>cs", "<cmd>PrtChatRespond<cr>", desc = "Trigger Response", mode = "n" },
