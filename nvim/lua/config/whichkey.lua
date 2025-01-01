@@ -12,13 +12,6 @@ function M.setup()
     {"<leader>bc", "<cmd>bd!<cr>", desc ="Close current buffer"},
     {"<leader>bD", "<cmd>%bd | e# | bd#<cr>", desc ="Delete all buffers"},
 
-    {"<leader>p", group = "Packer"},
-    {"<leader>pc", "<cmd>PackerCompile<cr>", desc = "Compile" },
-    {"<leader>pi", "<cmd>PackerInstall<cr>", desc = "Install" },
-    {"<leader>ps", "<cmd>PackerSync<cr>", desc = "Sync" },
-    {"<leader>pS", "<cmd>PackerStatus<cr>", desc = "Status" },
-    {"<leader>pu", "<cmd>PackerUpdate<cr>", desc = "Update" },
-
     {"<leader>f", group = "Find"},
     {"<leader>ff", "<cmd>lua require('telescope.builtin').find_files()<cr>", desc = "Files" },
     {"<leader>fb", "<cmd>lua require('telescope.builtin').buffers()<cr>", desc = "Buffers" },
