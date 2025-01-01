@@ -29,3 +29,12 @@ vim.g.copilot_no_tab_map = true
 
 vim.keymap.set("n", "[q", "<cmd>cprev<cr>", default_opts)
 vim.keymap.set("n", "]q", "<cmd>cnext<cr>", default_opts)
+vim.keymap.set("n", "<M-j>", "<cmd>cnext<cr>", default_opts)
+vim.keymap.set("n", "<M-k>", "<cmd>cprev<cr>", default_opts)
+
+vim.keymap.set("n", "<space><space>x", "<cmd>source %<cr>")
+vim.keymap.set("n", "<space>x", ":.lua<cr>")
+vim.keymap.set("v", "<space>x", ":lua<cr>")
+
+vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>")
+
