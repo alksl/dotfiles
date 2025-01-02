@@ -3,7 +3,17 @@ local M = {}
 function M.setup()
   local telescope = require('telescope')
   local actions = require('telescope.actions')
-  local project_actions = require("telescope._extensions.project.actions")
+  local builtin = require('telescope.builtin')
+  local actions_state = require('telescope.actions.state')
+
+  local find_files_without_cwd = function(prompt_bufnr, hidden_files)
+    local project_path = actions_state.get_selected_entry(prompt_bufnr).value
+    actions._close(prompt_bufnr, true)
+    vim.schedule(function()
+      builtin.find_files({cwd = project_path, hidden = hidden_files})
+    end)
+  end
+
   telescope.setup({
     defaults = {
       mappings = {
@@ -28,12 +38,17 @@ function M.setup()
         theme = "dropdown",
         order_by = "asc",
         search_by = "title",
+        mappings = {
+          n = {
+            ["f"] = find_files_without_cwd,
+          }
+        },
         sync_with_nvim_tree = true, -- default false
         -- default for on_project_selected = find project files
-        on_project_selected = function(prompt_bufnr)
-          -- Do anything you want in here. For example:
-          project_actions.change_working_directory(prompt_bufnr, false)
-        end
+        -- on_project_selected = function(prompt_bufnr)
+        --   -- Do anything you want in here. For example:
+        --   -- project_actions.change_working_directory(prompt_bufnr, false)
+        -- end
       }
     }
   })
