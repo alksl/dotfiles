@@ -21,6 +21,8 @@ vim.keymap.set(
   default_opts
 )
 
+vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
+
 vim.keymap.set('i', '<C-a>', 'copilot#Accept("<CR>")', {
   expr = true,
   replace_keycodes = false
