@@ -4,3 +4,6 @@ font-feature = -liga
 font-feature = -calt
 font-feature = -dlig
 window-decoration = false
+keybind = ctrl+shift+plus=increase_font_size:1
+keybind = ctrl+shift+minus=decrease_font_size:1
+keybind = ctrl+shift+,=reload_config
