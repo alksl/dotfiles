@@ -11,6 +11,8 @@ function M.setup()
       "typescript",
       "javascript",
       "tsx",
+      "markdown",
+      "markdown_inline",
     },
 
     -- Install languages synchronously (only applied to `ensure_installed`)
@@ -25,6 +27,9 @@ function M.setup()
     },
     endwise = {
       enable = false
+    },
+    markdown = {
+      enable = true
     }
   }
 end
