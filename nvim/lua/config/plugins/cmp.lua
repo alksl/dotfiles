@@ -17,9 +17,20 @@ return {
     }
   },
   {
+    "folke/lazydev.nvim",
+    ft = "lua", -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      },
+    },
+  },
+  {
     "hrsh7th/nvim-cmp",
     config = function()
-      require("config.cmp").setup()
+      require("config.complete").setup()
     end,
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
@@ -28,6 +39,7 @@ return {
       "hrsh7th/cmp-cmdline",
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
+      "folke/lazydev.nvim",
     }
   }
 }
