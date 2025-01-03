@@ -24,7 +24,6 @@ link-file() {
 link-file "zshrc" "${HOME}/.zshrc" "$1"
 link-file "zsh" "${HOME}/.zsh" "$1"
 link-file "vimrc" "${HOME}/.vimrc" "$1"
-link-file "vim" "${HOME}/.vim" "$1"
 link-file "i3/config" "${HOME}/.config/i3/config" "$1"
 link-file "kitty/kitty.conf" "${HOME}/.config/kitty/kitty.conf" "$1"
 link-file "kitty/theme.conf" "${HOME}/.config/kitty/theme.conf" "$1"
