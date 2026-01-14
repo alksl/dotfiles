@@ -199,8 +199,8 @@ bar {
 
 bindsym Control+Print exec gnome-screenshot -i
 
-bindsym $mod+Control+c exec google-chrome-stable
-bindsym $mod+c exec google-chrome-stable --profile-directory="$default_google_chrome_profile"
+bindsym $mod+Control+c exec prime-run google-chrome-stable
+bindsym $mod+c exec prime-run google-chrome-stable --profile-directory="$default_google_chrome_profile"
 bindsym $mod+p exec 1password --quick-access
 
 bindsym $mod+x exec $HOME/.local/bin/lock-screen
