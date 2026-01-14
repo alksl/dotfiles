@@ -115,6 +115,9 @@ alias gd="git diff"
 alias gdc="git diff --cached"
 alias glo="git log --oneline"
 alias icat="kitty +kitten icat"
+alias pr="poetry run"
+alias pa="\$(poetry env activate)"
+alias pss="poetry shell"
 
 
 # Load local zshrc
