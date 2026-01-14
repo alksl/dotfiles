@@ -27,6 +27,9 @@ zstyle ':vcs_info:*:*' nvcsformats "%~" ""
 export ZSH="$HOME/.zsh"
 export EDITOR=nvim
 
+export ASDF_DATA_DIR="$HOME/.asdf"
+export PATH="$ASDF_DATA_DIR/shims:$PATH"
+
 # Use home local bin if it exists
 if [[ -d "$HOME/.local/bin" ]]
 then
@@ -113,8 +116,6 @@ alias gdc="git diff --cached"
 alias glo="git log --oneline"
 alias icat="kitty +kitten icat"
 
-# Load ASDF tool version manager
-source /opt/asdf-vm/asdf.sh
 
 # Load local zshrc
 if [[ -f "${HOME}/.zshrc.local" ]]; then
