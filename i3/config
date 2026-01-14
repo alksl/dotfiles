@@ -53,8 +53,10 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec ghostty
 
-# start a terminal
-bindsym $mod+Shift+Return exec i3-sensible-terminal -d "$(xcwd)"
+bindsym $mod+b exec  ddcutil setvcp 10 100 && xrandr --output DP-1-1 --brightness 1.0
+bindsym $mod+Control+m exec ~/.local/bin/toggle-monitor
+
+
 
 # kill focused window
 bindsym $mod+Shift+q kill
