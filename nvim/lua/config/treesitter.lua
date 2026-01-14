@@ -12,6 +12,7 @@ function M.setup()
       "javascript",
       "tsx",
       "markdown",
+      "go",
       "markdown_inline",
     },
 
