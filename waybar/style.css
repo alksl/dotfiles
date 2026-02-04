@@ -26,3 +26,33 @@ window#waybar {
 #workspaces button:hover {
     background-color: #343434;
 }
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#network,
+#pulseaudio,
+#tray {
+    padding: 0 8px;
+}
+
+#battery.charging {
+    color: #98e024;
+}
+
+#battery.warning:not(.charging) {
+    color: #fd971f;
+}
+
+#battery.critical:not(.charging) {
+    color: #f4005f;
+}
+
+#network.disconnected {
+    color: #f4005f;
+}
+
+#pulseaudio.muted {
+    color: #625e4c;
+}
