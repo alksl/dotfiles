@@ -1,72 +1,13 @@
 {
     "layer": "top",
-    "position": "top",
-    "height": 30,
-    "spacing": 4,
-    
-    "modules-left": ["hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["custom/gpu", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
-    
+    "position": "bottom",
+    "height": 20,
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": [],
+    "modules-right": [],
+
     "hyprland/workspaces": {
         "format": "{id}",
         "on-click": "activate"
-    },
-    
-    "hyprland/window": {
-        "max-length": 50
-    },
-    
-    "clock": {
-        "format": "{:%Y-%m-%d  %H:%M}",
-        "tooltip-format": "<tt><small>{calendar}</small></tt>"
-    },
-    
-    "custom/gpu": {
-        "exec": "cat /sys/bus/pci/devices/0000:01:00.0/power/runtime_status 2>/dev/null | sed 's/suspended/󰾆/;s/active/󰾅/'",
-        "interval": 5,
-        "format": "GPU {}",
-        "tooltip": "NVIDIA GPU status (click to launch app)",
-        "on-click": "~/.config/hypr/scripts/nvidia-run.sh"
-    },
-    
-    "cpu": {
-        "format": "  {usage}%",
-        "tooltip": false
-    },
-    
-    "memory": {
-        "format": "  {}%"
-    },
-    
-    "battery": {
-        "states": {
-            "warning": 30,
-            "critical": 15
-        },
-        "format": "{icon}  {capacity}%",
-        "format-charging": "󰂄  {capacity}%",
-        "format-plugged": "  {capacity}%",
-        "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
-    },
-    
-    "network": {
-        "format-wifi": "  {essid}",
-        "format-ethernet": "󰈀  {ifname}",
-        "format-disconnected": "󰖪  Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
-    },
-    
-    "pulseaudio": {
-        "format": "{icon}  {volume}%",
-        "format-muted": "󰝟  Muted",
-        "format-icons": {
-            "default": ["󰕿", "󰖀", "󰕾"]
-        },
-        "on-click": "pavucontrol"
-    },
-    
-    "tray": {
-        "spacing": 10
     }
 }
