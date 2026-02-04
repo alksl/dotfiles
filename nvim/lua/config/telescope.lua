@@ -31,7 +31,6 @@ function M.setup()
     extensions = {
       project = {
         base_dirs = {
-          "~/dotfiles",
           {"~/code", max_depth = 3},
         },
         hidden_files = true, -- default: false

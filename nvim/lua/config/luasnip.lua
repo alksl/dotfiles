@@ -47,7 +47,7 @@ function M.setup()
     {silent = true}
   )
 
-  vim.keymap.set("n", "<leader><leader>s", "<cmd>source ~/dotfiles/nvim/after/plugin/snippets.lua<cr>")
+  vim.keymap.set("n", "<leader><leader>s", "<cmd>source ~/.config/nvim/after/plugin/snippets.lua<cr>")
 end
 
 return M
