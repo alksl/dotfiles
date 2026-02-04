@@ -1,0 +1,54 @@
+* {
+    font-family: "JetBrains Mono", "Font Awesome 6 Free";
+    font-size: 13px;
+}
+
+window#waybar {
+    background-color: #1e1e2e;
+    color: #cdd6f4;
+    border-bottom: 2px solid #89b4fa;
+}
+
+#workspaces button {
+    padding: 0 8px;
+    color: #cdd6f4;
+    border-radius: 0;
+}
+
+#workspaces button.active {
+    background-color: #89b4fa;
+    color: #1e1e2e;
+}
+
+#workspaces button:hover {
+    background-color: #45475a;
+}
+
+#clock, #battery, #cpu, #memory, #network, #pulseaudio, #custom-gpu, #tray {
+    padding: 0 10px;
+}
+
+#custom-gpu {
+    color: #a6e3a1;
+}
+
+#battery.charging {
+    color: #a6e3a1;
+}
+
+#battery.warning:not(.charging) {
+    color: #fab387;
+}
+
+#battery.critical:not(.charging) {
+    color: #f38ba8;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+@keyframes blink {
+    to { color: #1e1e2e; background-color: #f38ba8; }
+}
+
+#network.disconnected {
+    color: #f38ba8;
+}
