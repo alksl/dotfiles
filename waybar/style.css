@@ -20,7 +20,7 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: #f4005f;
+    color: #fd971f;
 }
 
 #workspaces button:hover {
