@@ -1,6 +1,25 @@
+# Font
+font-family = "JetBrains Mono"
+font-size = 12
+
+# Theme
 theme = Monokai Soda
-font-family = "Source Code Pro"
-window-decoration = false
-keybind = ctrl+shift+plus=increase_font_size:1
-keybind = ctrl+shift+minus=decrease_font_size:1
+
+# Window
+window-padding-x = 8
+window-padding-y = 8
+
+# Cursor
+cursor-style = block
+cursor-style-blink = false
+
+# Mouse
+mouse-hide-while-typing = true
+
+# Copy/Paste
+copy-on-select = true
+
+# Keybindings (Svorak A5 compatible - using Unicode codepoints)
+keybind = ctrl++=increase_font_size:1
+keybind = ctrl+-=decrease_font_size:1
 keybind = ctrl+shift+,=reload_config

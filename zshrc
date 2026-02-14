@@ -30,9 +30,6 @@ export EDITOR=nvim
 # SSH agent (systemd user service)
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
-export ASDF_DATA_DIR="$HOME/.asdf"
-export PATH="$ASDF_DATA_DIR/shims:$PATH"
-
 # Use home local bin if it exists
 if [[ -d "$HOME/.local/bin" ]]
 then
