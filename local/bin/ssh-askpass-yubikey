@@ -1,0 +1,75 @@
+#!/bin/bash
+# SSH Askpass wrapper with dual unlock methods
+#
+# Method A: YubiKey challenge-response (decrypt local encrypted file)
+# Method B: 1Password (fetch password directly)
+# Fallback: Manual entry via pinentry
+#
+# Usage: Set as SSH_ASKPASS environment variable
+#   export SSH_ASKPASS="$HOME/.local/bin/ssh-askpass-yubikey"
+#   export SSH_ASKPASS_REQUIRE="prefer"
+
+set -euo pipefail
+
+# Load configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/ssh.sh"
+source "$SCRIPT_DIR/onepassword.sh"
+
+# Method A: Try YubiKey (decrypt local encrypted password file)
+try_yubikey() {
+    # Check if YubiKey is present
+    ykman list &>/dev/null || return 1
+    
+    # Check if encrypted passphrase file exists
+    [ -f "$PASSPHRASE_FILE" ] || return 1
+    
+    # Convert challenge to hex
+    local challenge_hex=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+    
+    # Get YubiKey challenge-response
+    local yubikey_response=$(ykman otp calculate 2 "$challenge_hex" 2>/dev/null) || return 1
+    
+    # Decrypt the random password using YubiKey response
+    local random_password=$(printf "%s" "$yubikey_response" | \
+        openssl enc -aes-256-cbc -d -a -pass stdin \
+        -in "$PASSPHRASE_FILE" 2>/dev/null) || return 1
+    
+    # Return the password (includes hyphens)
+    printf "%s" "$random_password"
+    return 0
+}
+
+# Method B: Try 1Password (fetch password directly)
+try_onepassword() {
+    # Check if 1Password is available
+    check_op_available || return 1
+    
+    # Fetch random password from 1Password
+    local random_password=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD") || return 1
+    
+    # Return the password (includes hyphens)
+    printf "%s" "$random_password"
+    return 0
+}
+
+# Method C: Manual entry fallback
+manual_entry() {
+    pinentry-gtk --prompt "Enter SSH key passphrase:" "$@"
+}
+
+# Main logic: Try methods in order
+# Priority: YubiKey (fastest/offline) → 1Password (convenient) → Manual (fallback)
+
+if passphrase=$(try_yubikey 2>/dev/null); then
+    printf "%s" "$passphrase"
+    exit 0
+fi
+
+if passphrase=$(try_onepassword 2>/dev/null); then
+    printf "%s" "$passphrase"
+    exit 0
+fi
+
+# Final fallback to manual entry
+manual_entry "$@"

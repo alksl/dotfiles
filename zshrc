@@ -30,6 +30,10 @@ export EDITOR=nvim
 # SSH agent (systemd user service)
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
 
+# SSH askpass configuration for YubiKey
+export SSH_ASKPASS="$HOME/.local/bin/ssh-askpass-yubikey"
+export SSH_ASKPASS_REQUIRE="prefer"
+
 # Use home local bin if it exists
 if [[ -d "$HOME/.local/bin" ]]
 then

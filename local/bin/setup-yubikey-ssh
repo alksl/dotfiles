@@ -1,0 +1,360 @@
+#!/bin/bash
+# Setup script for YubiKey + 1Password SSH key encryption
+#
+# This script will:
+# 1. Generate a random strong password for SSH key encryption
+# 2. Store the password in 1Password (Method B - direct access)
+# 3. Encrypt the password with YubiKey challenge-response (Method A - offline access)
+# 4. Re-encrypt your SSH key with the random password
+# 5. Configure dual unlock methods (YubiKey OR 1Password)
+
+set -euo pipefail
+
+# Load common configuration
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/ssh.sh"
+source "$SCRIPT_DIR/log.sh"
+source "$SCRIPT_DIR/onepassword.sh"
+
+# Cleanup function for sensitive variables
+cleanup_sensitive_vars() {
+    unset RANDOM_PASSWORD 2>/dev/null
+    unset OP_PASSWORD 2>/dev/null
+    unset YUBIKEY_PASSWORD 2>/dev/null
+    unset YUBIKEY_RESPONSE 2>/dev/null
+}
+
+# Ensure cleanup on exit
+trap cleanup_sensitive_vars EXIT
+
+log "YubiKey + 1Password SSH Key Setup"
+echo "===================================="
+echo ""
+
+# Step 1: Prerequisites Check
+warn "Step 1: Checking prerequisites"
+echo ""
+
+# Check op CLI
+if ! command -v op &>/dev/null; then
+    error "Error: 1Password CLI (op) is not installed"
+    echo "Please install it first: https://developer.1password.com/docs/cli/get-started/"
+    exit 1
+fi
+
+# Check if 1Password is unlocked
+if ! check_op_available; then
+    error "Error: 1Password is not unlocked"
+    echo "Please unlock 1Password and try again"
+    exit 1
+fi
+
+log "✓ 1Password CLI is available and unlocked"
+
+# Check ykman
+if ! command -v ykman &>/dev/null; then
+    error "Error: YubiKey Manager (ykman) is not installed"
+    exit 1
+fi
+
+# Check YubiKey presence
+if ! ykman list &>/dev/null; then
+    error "Error: No YubiKey detected"
+    echo "Please insert your YubiKey and try again"
+    exit 1
+fi
+
+log "✓ YubiKey detected"
+
+# Check SSH key exists
+if [ ! -f "$SSH_KEY" ]; then
+    error "Error: SSH key not found at $SSH_KEY"
+    exit 1
+fi
+
+log "✓ SSH key found at $SSH_KEY"
+echo ""
+
+# Show YubiKey info
+echo "YubiKey information:"
+ykman info
+echo ""
+
+# Show configuration
+echo "Configuration:"
+echo "  Hostname: $HOSTNAME"
+echo "  1Password item: $ONEPASSWORD_ITEM"
+echo "  SSH key: $SSH_KEY"
+echo "  Encrypted passphrase file: $PASSPHRASE_FILE"
+echo ""
+
+# Confirm to continue
+read -p "Continue with setup? [y/N] " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+fi
+
+# Step 2: Configure YubiKey Slot 2
+echo ""
+warn "Step 2: Configuring YubiKey Slot 2 with challenge-response"
+echo ""
+echo "Current slot status:"
+ykman otp info
+echo ""
+echo "This will configure Slot 2 with a NEW challenge-response credential."
+read -p "Continue? [y/N] " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+fi
+
+echo ""
+echo "You will be asked to touch the YubiKey to confirm..."
+if ! ykman otp chalresp --generate --touch --force 2; then
+    error "Error: Failed to configure YubiKey Slot 2"
+    exit 1
+fi
+
+log "✓ YubiKey Slot 2 configured successfully"
+echo ""
+
+# Step 3: Test challenge-response
+warn "Step 3: Testing YubiKey challenge-response"
+echo "Touch your YubiKey when it blinks..."
+echo ""
+
+CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+if [ -z "$YUBIKEY_RESPONSE" ]; then
+    error "Error: Failed to get response from YubiKey"
+    exit 1
+fi
+
+log "✓ Challenge-response working"
+echo ""
+
+# Step 4: Generate random password
+warn "Step 4: Generating random password for SSH key encryption"
+echo ""
+
+# Generate 64-character hex password split into 8 groups of 8 chars with hyphens
+# This is more readable and avoids special character issues with base64
+# Result format: xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx
+RANDOM_PASSWORD=$(openssl rand -hex 32 | sed 's/\(........\)/\1-/g' | sed 's/-$//')
+
+if [ -z "$RANDOM_PASSWORD" ]; then
+    error "Error: Failed to generate random password"
+    unset CURRENT_PASSPHRASE
+    exit 1
+fi
+
+log "✓ Random password generated (hex format with hyphens)"
+echo "  Password: $RANDOM_PASSWORD"
+echo ""
+
+# Step 6: Store password in 1Password
+warn "Step 5: Storing password in 1Password"
+echo ""
+
+# Check if item already exists
+if op item get "$ONEPASSWORD_ITEM" --account "$OP_ACCOUNT" &>/dev/null; then
+    warn "1Password item '$ONEPASSWORD_ITEM' already exists"
+    read -p "Do you want to overwrite it? [y/N] " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        error "Aborted. Please delete the existing item or use a different hostname."
+        unset CURRENT_PASSPHRASE
+        unset RANDOM_PASSWORD
+        exit 1
+    fi
+    echo "Updating existing 1Password item: $ONEPASSWORD_ITEM"
+else
+    echo "Creating 1Password item: $ONEPASSWORD_ITEM"
+fi
+
+if ! store_op_password "$ONEPASSWORD_ITEM" "$RANDOM_PASSWORD" "ssh,$HOSTNAME"; then
+    error "Error: Failed to store password in 1Password"
+    unset CURRENT_PASSPHRASE
+    unset RANDOM_PASSWORD
+    exit 1
+fi
+
+log "✓ Password stored in 1Password"
+echo ""
+
+# Step 7: Verify 1Password retrieval
+warn "Step 6: Verifying 1Password retrieval"
+echo ""
+
+RETRIEVED_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+if [ "$RETRIEVED_PASSWORD" != "$RANDOM_PASSWORD" ]; then
+    error "Error: Retrieved password doesn't match stored password"
+    echo "The password was not stored correctly in 1Password."
+    echo "Please re-run the setup script."
+    exit 1
+fi
+
+unset RETRIEVED_PASSWORD
+log "✓ 1Password retrieval verified"
+echo ""
+
+# Step 8: Encrypt random password with YubiKey
+warn "Step 7: Encrypting password with YubiKey challenge-response"
+echo "Touch your YubiKey when it blinks..."
+echo ""
+
+# Get fresh YubiKey response
+CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+
+# Encrypt the random password with YubiKey response
+printf "%s" "$RANDOM_PASSWORD" | \
+    openssl enc -aes-256-cbc -a -salt \
+    -pass pass:"$YUBIKEY_RESPONSE" \
+    -out "$PASSPHRASE_FILE"
+
+# Set restrictive permissions
+chmod 600 "$PASSPHRASE_FILE"
+
+log "✓ Password encrypted with YubiKey and saved to $PASSPHRASE_FILE"
+echo ""
+
+# Step 9: Test YubiKey decryption
+warn "Step 8: Testing YubiKey decryption"
+echo "Touch your YubiKey when it blinks..."
+echo ""
+
+CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+DECRYPTED_PASSWORD=$(printf "%s" "$YUBIKEY_RESPONSE" | \
+    openssl enc -aes-256-cbc -d -a -pass stdin -in "$PASSPHRASE_FILE" 2>/dev/null)
+
+if [ "$DECRYPTED_PASSWORD" != "$RANDOM_PASSWORD" ]; then
+    error "Error: YubiKey decryption failed"
+    echo "The password was not encrypted correctly with YubiKey."
+    echo "Please re-run the setup script."
+    exit 1
+fi
+
+unset YUBIKEY_RESPONSE
+unset DECRYPTED_PASSWORD
+log "✓ YubiKey decryption verified"
+echo ""
+
+# Step 10: Manual SSH key re-encryption
+warn "Step 9: Re-encrypt your SSH key with the new password"
+echo ""
+
+echo "The random password has been generated and stored in:"
+echo "  • 1Password item: $ONEPASSWORD_ITEM"
+echo "  • YubiKey encrypted file: $PASSPHRASE_FILE"
+echo ""
+echo "You need to manually re-encrypt your SSH key with this new password."
+echo ""
+warn "IMPORTANT: Follow these steps carefully:"
+echo ""
+echo "1. Run this command to re-encrypt your SSH key:"
+echo "   ssh-keygen -p -f $SSH_KEY"
+echo ""
+echo "2. When prompted for 'Enter old passphrase':"
+echo "   → Enter your CURRENT SSH key passphrase"
+echo ""
+echo "3. Copy the password to clipboard with this command:"
+echo "   op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal | wl-copy"
+echo ""
+echo "4. When prompted for 'Enter new passphrase':"
+echo "   → Paste from clipboard (Ctrl+Shift+V or middle-click)"
+echo ""
+echo "5. When prompted for 'Enter same passphrase again':"
+echo "   → Paste from clipboard again"
+echo ""
+echo "Alternative: Store in variable and use when needed:"
+echo "   NEW_PASS=\$(op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal)"
+echo "   ssh-keygen -p -f $SSH_KEY"
+echo "   → Enter old passphrase when prompted"
+echo "   → Paste \$NEW_PASS for new passphrase (echo \$NEW_PASS to see it)"
+echo ""
+
+# Clear sensitive variables before user interaction
+unset CURRENT_PASSPHRASE
+
+# Wait for user to complete the re-encryption
+read -p "Press Enter when you have successfully re-encrypted your SSH key... " -r
+echo ""
+
+# Step 11: Verify SSH key encryption
+warn "Step 10: Verifying SSH key encryption"
+echo ""
+
+echo "Testing if SSH key was re-encrypted correctly..."
+
+# Test retrieval from 1Password
+echo "Testing 1Password method..."
+OP_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+if ! ssh-keygen -y -P "$OP_PASSWORD" -f "$SSH_KEY" &>/dev/null; then
+    error "Error: SSH key doesn't work with 1Password password"
+    echo ""
+    echo "This means the SSH key was not re-encrypted correctly."
+    echo "Please restore from your backup and re-run this setup script."
+    exit 1
+fi
+
+unset OP_PASSWORD
+log "✓ 1Password method verified"
+echo ""
+
+# Test YubiKey method
+echo "Testing YubiKey method..."
+echo "Touch your YubiKey when it blinks..."
+
+CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+YUBIKEY_PASSWORD=$(printf "%s" "$YUBIKEY_RESPONSE" | \
+    openssl enc -aes-256-cbc -d -a -pass stdin -in "$PASSPHRASE_FILE" 2>/dev/null)
+
+if ! ssh-keygen -y -P "$YUBIKEY_PASSWORD" -f "$SSH_KEY" &>/dev/null; then
+    error "Error: SSH key doesn't work with YubiKey-decrypted password"
+    echo ""
+    echo "This means the SSH key was not re-encrypted correctly."
+    echo "Please restore from your backup and re-run this setup script."
+    exit 1
+fi
+
+unset YUBIKEY_RESPONSE
+unset YUBIKEY_PASSWORD
+log "✓ YubiKey method verified"
+echo ""
+
+# Clear remaining sensitive variables
+unset RANDOM_PASSWORD
+
+# Step 12: Success!
+log "Setup complete! 🎉"
+echo ""
+echo "Your SSH key is now configured with dual unlock methods:"
+echo ""
+echo "  Method A (YubiKey): Touch YubiKey to decrypt password from $PASSPHRASE_FILE"
+echo "  Method B (1Password): Fetch password directly from 1Password item: $ONEPASSWORD_ITEM"
+echo ""
+echo "Next steps:"
+echo "1. Make sure these are in your ~/.zshrc:"
+echo "   export SSH_ASKPASS=\"\$HOME/.local/bin/ssh-askpass-yubikey\""
+echo "   export SSH_ASKPASS_REQUIRE=\"prefer\""
+echo ""
+echo "2. Reload your shell: source ~/.zshrc"
+echo ""
+echo "3. Test with: ssh-add ~/.ssh/id_ed25519"
+echo "   - If YubiKey is present: Touch it when prompted"
+echo "   - If YubiKey is absent: Password fetched from 1Password automatically"
+echo ""
+warn "Important security notes:"
+echo "  • Your SSH key is now encrypted with a random 64-character hex password"
+echo "  • This password is stored in 1Password (encrypted vault)"
+echo "  • This password is also encrypted locally with your YubiKey"
+echo "  • You don't need to memorize the password (YubiKey or 1Password will provide it)"
+echo "  • If you lose your YubiKey, you can still use 1Password to access your key"
+echo "  • If 1Password is unavailable, you can use your YubiKey"
+echo ""
