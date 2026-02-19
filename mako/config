@@ -1,0 +1,22 @@
+# Default behavior - hide all notifications
+invisible=1
+
+# Keep notifications in history
+max-history=100
+history=1
+
+# When viewing notifications (via makoctl restore or script)
+max-visible=5
+default-timeout=5000
+
+# Visual settings (for when you do view them)
+font=monospace 10
+width=400
+height=200
+margin=10
+padding=10
+border-size=2
+border-radius=5
+background-color=#1a1a1a
+text-color=#ffffff
+border-color=#fd971f

@@ -1,0 +1,45 @@
+#!/bin/bash
+# View mako notifications in rofi
+
+# Get current notifications
+notifications=$(makoctl list)
+
+if [ -z "$notifications" ]; then
+    # Check history if no current notifications
+    history=$(makoctl history)
+    if [ -z "$history" ]; then
+        # No notifications at all - show a message
+        echo "No notifications" | rofi -dmenu -p "Notifications" -theme Monokai -mesg "No notifications available"
+        exit 0
+    fi
+    
+    # Parse history and show in rofi
+    # Format output for rofi display
+    selected=$(echo "$history" | \
+        grep -E "(App name|Summary|Body)" | \
+        paste -d " " - - - | \
+        sed 's/  */ /g' | \
+        rofi -dmenu -p "Notification History" -theme Monokai)
+else
+    # Parse current notifications and show in rofi
+    # Show notification list with ID, app, and summary
+    selected=$(echo "$notifications" | \
+        rofi -dmenu -p "Notifications" -theme Monokai -mesg "Select notification or ESC to cancel")
+    
+    if [ -n "$selected" ]; then
+        # Show actions menu
+        action=$(echo -e "Dismiss\nDismiss All\nClose" | \
+            rofi -dmenu -p "Action" -theme Monokai)
+        
+        case "$action" in
+            "Dismiss")
+                # Extract notification ID and dismiss
+                id=$(echo "$selected" | grep -oP 'Notification \K[0-9]+')
+                [ -n "$id" ] && makoctl dismiss -n "$id"
+                ;;
+            "Dismiss All")
+                makoctl dismiss --all
+                ;;
+        esac
+    fi
+fi
