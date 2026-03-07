@@ -18,8 +18,8 @@ source "$SCRIPT_DIR/onepassword.sh"
 
 # Method A: Try YubiKey (decrypt local encrypted password file)
 try_yubikey() {
-    # Check if YubiKey is present
-    ykman list &>/dev/null || return 1
+    # Check if YubiKey is present (ykman list exits 0 even with no device)
+    [ -n "$(ykman list 2>/dev/null)" ] || return 1
     
     # Check if encrypted passphrase file exists
     [ -f "$PASSPHRASE_FILE" ] || return 1
@@ -43,8 +43,18 @@ try_yubikey() {
 # Method B: Try 1Password (fetch password directly)
 try_onepassword() {
     # Check if 1Password is available
-    check_op_available || return 1
-    
+    if ! command -v op &>/dev/null; then
+        return 1
+    fi
+
+    # Check if already signed in, otherwise attempt signin via desktop app integration
+    if ! op whoami --account "$OP_ACCOUNT" &>/dev/null; then
+        if ! op signin --account "$OP_ACCOUNT" &>/dev/null; then
+            logger -t ssh-askpass "1Password is locked or CLI integration is not enabled — falling back to manual entry"
+            return 1
+        fi
+    fi
+
     # Fetch random password from 1Password
     local random_password=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD") || return 1
     
@@ -55,7 +65,11 @@ try_onepassword() {
 
 # Method C: Manual entry fallback
 manual_entry() {
-    pinentry-gtk --prompt "Enter SSH key passphrase:" "$@"
+    local desc="${1:-Enter SSH key passphrase:}"
+    local result
+    result=$(printf "SETDESC %s\nSETPROMPT Passphrase:\nGETPIN\nBYE\n" "$desc" | pinentry-gtk 2>/dev/null) || return 1
+    # Parse the "D <password>" line from Assuan protocol output
+    printf "%s" "$result" | grep '^D ' | sed 's/^D //'
 }
 
 # Main logic: Try methods in order
