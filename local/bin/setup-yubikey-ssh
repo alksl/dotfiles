@@ -103,22 +103,54 @@ echo ""
 echo "Current slot status:"
 ykman otp info
 echo ""
-echo "This will configure Slot 2 with a NEW challenge-response credential."
-read -p "Continue? [y/N] " -n 1 -r
-echo ""
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 0
+
+# Detect whether Slot 2 is already programmed
+SLOT2_CONFIGURED=false
+if ykman otp info 2>/dev/null | grep -q "Slot 2:.*Programmed"; then
+    SLOT2_CONFIGURED=true
 fi
 
-echo ""
-echo "You will be asked to touch the YubiKey to confirm..."
-if ! ykman otp chalresp --generate --touch --force 2; then
-    error "Error: Failed to configure YubiKey Slot 2"
-    exit 1
-fi
+if $SLOT2_CONFIGURED; then
+    warn "Slot 2 is already configured."
+    echo ""
+    echo "Options:"
+    echo "  [o] Overwrite Slot 2 with a new challenge-response credential (destructive)"
+    echo "  [k] Keep the existing Slot 2 credential and use a different challenge"
+    echo "      Challenge that will be used: $CHALLENGE"
+    echo ""
+    read -p "Choice [o/K] " -n 1 -r
+    echo ""
+    case "${REPLY,,}" in
+        o)
+            echo ""
+            echo "You will be asked to touch the YubiKey to confirm..."
+            if ! ykman otp chalresp --generate --touch --force 2; then
+                error "Error: Failed to configure YubiKey Slot 2"
+                exit 1
+            fi
+            log "✓ YubiKey Slot 2 reconfigured with new credential"
+            ;;
+        *)
+            log "✓ Keeping existing Slot 2 credential — will use challenge: $CHALLENGE"
+            ;;
+    esac
+else
+    echo "Slot 2 is empty. It will be configured with a new challenge-response credential."
+    read -p "Continue? [y/N] " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Aborted."
+        exit 0
+    fi
 
-log "✓ YubiKey Slot 2 configured successfully"
+    echo ""
+    echo "You will be asked to touch the YubiKey to confirm..."
+    if ! ykman otp chalresp --generate --touch --force 2; then
+        error "Error: Failed to configure YubiKey Slot 2"
+        exit 1
+    fi
+    log "✓ YubiKey Slot 2 configured successfully"
+fi
 echo ""
 
 # Step 3: Test challenge-response

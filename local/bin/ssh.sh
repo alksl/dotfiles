@@ -9,7 +9,8 @@ ONEPASSWORD_ITEM="ssh-key-${HOSTNAME}"
 ONEPASSWORD_FIELD="password"
 
 # YubiKey challenge-response configuration
-CHALLENGE="ssh-key-passphrase-$(whoami)"
+# Includes hostname so each machine derives a unique challenge without any stored state
+CHALLENGE="ssh-key-passphrase-$(whoami)-${HOSTNAME}"
 
 # Location of encrypted passphrase file (for YubiKey method)
 PASSPHRASE_FILE="$HOME/.ssh/.passphrase.enc"

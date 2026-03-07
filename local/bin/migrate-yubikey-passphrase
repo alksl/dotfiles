@@ -1,0 +1,104 @@
+#!/bin/bash
+# Migrate the YubiKey-encrypted passphrase file to use the current challenge.
+#
+# Since the passphrase is stored in 1Password, migration is straightforward:
+#   1. Fetch the passphrase from 1Password
+#   2. Re-encrypt it with the current YubiKey challenge-response
+#   3. Verify the result
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/ssh.sh"
+source "$SCRIPT_DIR/log.sh"
+source "$SCRIPT_DIR/onepassword.sh"
+
+cleanup() {
+    unset PASSPHRASE 2>/dev/null
+    unset YUBIKEY_RESPONSE 2>/dev/null
+    unset VERIFY 2>/dev/null
+}
+trap cleanup EXIT
+
+log "YubiKey Passphrase Migration"
+echo "============================="
+echo ""
+echo "This will re-encrypt ~/.ssh/.passphrase.enc using the current challenge:"
+echo "  Challenge: $CHALLENGE"
+echo "  Source:    1Password item '$ONEPASSWORD_ITEM'"
+echo "  Target:    $PASSPHRASE_FILE"
+echo ""
+
+# Prerequisites
+if ! command -v op &>/dev/null; then
+    error "Error: 1Password CLI (op) is not installed"
+    exit 1
+fi
+
+if ! check_op_available; then
+    error "Error: 1Password is not unlocked"
+    exit 1
+fi
+
+if ! command -v ykman &>/dev/null; then
+    error "Error: YubiKey Manager (ykman) is not installed"
+    exit 1
+fi
+
+if [ -z "$(ykman list 2>/dev/null)" ]; then
+    error "Error: No YubiKey detected"
+    exit 1
+fi
+
+read -p "Continue? [y/N] " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+fi
+echo ""
+
+# Step 1: Fetch passphrase from 1Password
+warn "Step 1: Fetching passphrase from 1Password"
+PASSPHRASE=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+if [ -z "$PASSPHRASE" ]; then
+    error "Error: Could not fetch passphrase from 1Password item '$ONEPASSWORD_ITEM'"
+    exit 1
+fi
+log "✓ Passphrase fetched from 1Password"
+echo ""
+
+# Step 2: Encrypt with current YubiKey challenge
+warn "Step 2: Encrypting with YubiKey — touch when it blinks..."
+CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+if [ -z "$YUBIKEY_RESPONSE" ]; then
+    error "Error: No response from YubiKey"
+    exit 1
+fi
+
+printf "%s" "$PASSPHRASE" | \
+    openssl enc -aes-256-cbc -a -salt \
+    -pass pass:"$YUBIKEY_RESPONSE" \
+    -out "$PASSPHRASE_FILE"
+chmod 600 "$PASSPHRASE_FILE"
+unset YUBIKEY_RESPONSE
+
+log "✓ Passphrase encrypted and saved to $PASSPHRASE_FILE"
+echo ""
+
+# Step 3: Verify
+warn "Step 3: Verifying — touch YubiKey again..."
+YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
+VERIFY=$(printf "%s" "$YUBIKEY_RESPONSE" | \
+    openssl enc -aes-256-cbc -d -a -pass stdin \
+    -in "$PASSPHRASE_FILE" 2>/dev/null)
+
+if [ "$VERIFY" != "$PASSPHRASE" ]; then
+    error "Error: Verification failed — decrypted value does not match"
+    exit 1
+fi
+
+log "✓ Verification passed"
+echo ""
+log "Migration complete. YubiKey method is ready with the current challenge."
