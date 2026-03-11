@@ -49,6 +49,7 @@ LOGCHECK=0
 # Configure ZSH function path
 fpath=(~/.zsh/functions $fpath)
 source ~/.zsh/functions/p
+source ~/.zsh/functions/wt
 
 # Use vi mode but restore some sane emacs commands.
 bindkey -v
