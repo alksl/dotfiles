@@ -1,0 +1,12 @@
+function wt() {
+    case "$1" in
+        switch|sw)
+            local target
+            target=$(command wt "$@") || return 1
+            cd "$target"
+            ;;
+        *)
+            command wt "$@"
+            ;;
+    esac
+}

@@ -1,0 +1,178 @@
+#!/bin/bash
+# Git worktree management tool
+
+source "$(dirname "$0")/log.sh"
+
+usage() {
+    echo "Usage: wt new <branch-name>"
+    echo "       wt switch <branch-name>"
+    echo "       wt sw <branch-name>"
+}
+
+cmd_new() {
+    local branch="$1"
+
+    if [ -z "$branch" ]; then
+        usage
+        exit 1
+    fi
+
+    # Validate we're inside a git repo
+    local toplevel
+    toplevel=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$toplevel" ]; then
+        error "Not inside a git repository"
+        exit 1
+    fi
+
+    local repo_name
+    repo_name=$(basename "$toplevel")
+
+    local worktree_path
+    worktree_path="$(dirname "$toplevel")/${repo_name}-${branch}"
+
+    # Check if a worktree already exists on this branch
+    local existing_worktree
+    existing_worktree=$(git worktree list --porcelain | awk '/^worktree /{wt=$2} /^branch refs\/heads\/'"$branch"'$/{print wt}')
+    if [ -n "$existing_worktree" ]; then
+        error "A worktree for branch '$branch' already exists at: $existing_worktree"
+        exit 1
+    fi
+
+    # Check if target directory already exists
+    if [ -d "$worktree_path" ]; then
+        error "Target directory already exists: $worktree_path"
+        exit 1
+    fi
+
+    # Create branch if it doesn't exist
+    if ! git show-ref --verify --quiet "refs/heads/$branch"; then
+        log "Creating branch '$branch' from HEAD"
+        git branch "$branch"
+    fi
+
+    log "Creating worktree at $worktree_path"
+    git worktree add "$worktree_path" "$branch"
+    log "Done: $worktree_path"
+}
+
+cmd_switch() {
+    local branch="$1"
+
+    if [ -z "$branch" ]; then
+        usage
+        exit 1
+    fi
+
+    # Validate we're inside a git repo
+    local toplevel
+    toplevel=$(git rev-parse --show-toplevel 2>/dev/null)
+    if [ -z "$toplevel" ]; then
+        error "Not inside a git repository"
+        exit 1
+    fi
+
+    # Find the main worktree (always the first entry in the list)
+    local main_worktree
+    main_worktree=$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')
+
+    local main_name
+    main_name=$(basename "$main_worktree")
+
+    local parent
+    parent=$(dirname "$main_worktree")
+
+    # "main" and "master" always go to the main worktree
+    local main_branch
+    main_branch=$(git -C "$main_worktree" symbolic-ref --short HEAD 2>/dev/null)
+
+    local worktree_path
+    if [ "$branch" = "main" ] || [ "$branch" = "master" ] || [ "$branch" = "$main_branch" ]; then
+        worktree_path="$main_worktree"
+    else
+        worktree_path="${parent}/${main_name}-${branch}"
+    fi
+
+    if [ ! -d "$worktree_path" ]; then
+        error "No worktree found for branch '$branch' at: $worktree_path"
+        exit 1
+    fi
+
+    # Print the path so the shell function can cd to it
+    echo "$worktree_path"
+}
+
+cmd_complete() {
+    local subcmd="$1"
+    case "$subcmd" in
+        switch|sw)
+            git worktree list --porcelain 2>/dev/null | awk '/^branch /{sub("refs/heads/", "", $2); print $2}'
+            ;;
+        rm)
+            # Exclude the main worktree (first entry)
+            git worktree list --porcelain 2>/dev/null | awk '/^worktree /{wt=$2} /^branch /{sub("refs/heads/", "", $2); print wt, $2}' | tail -n +2 | awk '{print $2}'
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+}
+
+cmd_rm() {
+    local branch="$1"
+
+    if [ -z "$branch" ]; then
+        usage
+        exit 1
+    fi
+
+    local worktree_path
+    worktree_path=$(git worktree list --porcelain | awk '/^worktree /{wt=$2} /^branch refs\/heads\/'"$branch"'$/{print wt}')
+
+    if [ -z "$worktree_path" ]; then
+        error "No worktree found for branch '$branch'"
+        exit 1
+    fi
+
+    git worktree remove "$worktree_path"
+}
+
+cmd_list() {
+    git worktree list
+}
+
+cmd_prune() {
+    git worktree prune
+}
+
+# Parse subcommand
+case "$1" in
+    new)
+        shift
+        cmd_new "$@"
+        ;;
+    switch|sw)
+        shift
+        cmd_switch "$@"
+        ;;
+    list)
+        shift
+        cmd_list "$@"
+        ;;
+    prune)
+        shift
+        cmd_prune "$@"
+        ;;
+    rm)
+        shift
+        cmd_rm "$@"
+        ;;
+    complete)
+        shift
+        cmd_complete "$@"
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+esac
