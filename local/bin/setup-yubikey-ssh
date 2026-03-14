@@ -134,7 +134,7 @@ echo ""
 
 # Detect whether Slot 2 is already programmed
 SLOT2_CONFIGURED=false
-if ykman otp info 2>/dev/null | grep -q "Slot 2:.*Programmed"; then
+if ykman otp info 2>/dev/null | grep -qi "Slot 2:.*programmed"; then
     SLOT2_CONFIGURED=true
 fi
 
