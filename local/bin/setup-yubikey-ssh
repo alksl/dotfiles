@@ -47,6 +47,7 @@ source "$SCRIPT_DIR/onepassword.sh"
 # Cleanup function for sensitive variables
 cleanup_sensitive_vars() {
     unset RANDOM_PASSWORD 2>/dev/null
+    unset CURRENT_PASSPHRASE 2>/dev/null
     unset OP_PASSWORD 2>/dev/null
     unset YUBIKEY_PASSWORD 2>/dev/null
     unset YUBIKEY_RESPONSE 2>/dev/null
@@ -194,27 +195,37 @@ fi
 log "✓ Challenge-response working"
 echo ""
 
-# Step 4: Obtain password (reuse from 1Password if it already exists)
+# Step 4: Obtain password — reuse from 1Password if it already unlocks the SSH key
 warn "Step 4: Obtaining password for SSH key encryption"
 echo ""
 
-EXISTING_OP_ITEM=false
+REUSE_PASSWORD=false
 if op item get "$ONEPASSWORD_ITEM" --account "$OP_ACCOUNT" &>/dev/null; then
-    EXISTING_OP_ITEM=true
+    EXISTING_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+    if [ -n "$EXISTING_PASSWORD" ] && ssh-keygen -y -P "$EXISTING_PASSWORD" -f "$SSH_KEY" &>/dev/null; then
+        log "✓ 1Password item '$ONEPASSWORD_ITEM' exists and its password unlocks the SSH key — reusing"
+        RANDOM_PASSWORD="$EXISTING_PASSWORD"
+        REUSE_PASSWORD=true
+    else
+        warn "1Password item '$ONEPASSWORD_ITEM' exists but its password does not unlock the SSH key"
+        echo "  A new password will be generated and the SSH key will be re-encrypted."
+    fi
+    unset EXISTING_PASSWORD
 fi
+echo ""
 
-if $EXISTING_OP_ITEM; then
-    log "✓ 1Password item '$ONEPASSWORD_ITEM' already exists — reusing existing password"
-    RANDOM_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
-    if [ -z "$RANDOM_PASSWORD" ]; then
-        error "Error: Failed to fetch existing password from 1Password"
+if ! $REUSE_PASSWORD; then
+    # Prompt for the current SSH key passphrase so we can re-encrypt in one step later
+    read -rsp "Enter current SSH key passphrase (needed to re-encrypt): " CURRENT_PASSPHRASE
+    echo ""
+    if ! ssh-keygen -y -P "$CURRENT_PASSPHRASE" -f "$SSH_KEY" &>/dev/null; then
+        error "Error: Incorrect passphrase for $SSH_KEY"
         exit 1
     fi
-    echo "  (Using existing password from 1Password — SSH key re-encryption will be skipped)"
+    log "✓ Current passphrase verified"
     echo ""
-else
+
     # Generate 64-character hex password split into 8 groups of 8 chars with hyphens
-    # This is more readable and avoids special character issues with base64
     # Result format: xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx
     RANDOM_PASSWORD=$(openssl rand -hex 32 | sed 's/\(........\)/\1-/g' | sed 's/-$//')
 
@@ -226,9 +237,21 @@ else
     log "✓ Random password generated (hex format with hyphens)"
     echo ""
 
-    # Step 5: Store password in 1Password
-    warn "Step 5: Storing password in 1Password"
-    echo "Creating 1Password item: $ONEPASSWORD_ITEM"
+    # Step 5: Re-encrypt SSH key with new password
+    warn "Step 5: Re-encrypting SSH key with new password"
+    echo ""
+
+    if ! ssh-keygen -p -P "$CURRENT_PASSPHRASE" -N "$RANDOM_PASSWORD" -f "$SSH_KEY"; then
+        error "Error: Failed to re-encrypt SSH key"
+        exit 1
+    fi
+    unset CURRENT_PASSPHRASE
+
+    log "✓ SSH key re-encrypted"
+    echo ""
+
+    # Step 6: Store new password in 1Password
+    warn "Step 6: Storing new password in 1Password"
     echo ""
 
     if ! store_op_password "$ONEPASSWORD_ITEM" "$RANDOM_PASSWORD" "ssh,$HOSTNAME"; then
@@ -237,13 +260,10 @@ else
         exit 1
     fi
 
-    log "✓ Password stored in 1Password"
+    log "✓ Password stored in 1Password item: $ONEPASSWORD_ITEM"
     echo ""
 
-    # Step 6: Verify 1Password retrieval
-    warn "Step 6: Verifying 1Password retrieval"
-    echo ""
-
+    # Verify round-trip
     RETRIEVED_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
     if [ "$RETRIEVED_PASSWORD" != "$RANDOM_PASSWORD" ]; then
         error "Error: Retrieved password doesn't match stored password"
@@ -251,7 +271,6 @@ else
         echo "Please re-run the setup script."
         exit 1
     fi
-
     unset RETRIEVED_PASSWORD
     log "✓ 1Password retrieval verified"
     echo ""
@@ -300,66 +319,22 @@ unset DECRYPTED_PASSWORD
 log "✓ YubiKey decryption verified"
 echo ""
 
-# Step 9: SSH key re-encryption (only needed when a new password was generated)
-warn "Step 9: Re-encrypt your SSH key with the new password"
+# Step 9: Verify SSH key encryption
+warn "Step 9: Verifying SSH key encryption"
 echo ""
 
-if $EXISTING_OP_ITEM; then
-    log "✓ Password already existed in 1Password — SSH key should already be encrypted with it"
-    echo "  Skipping re-encryption. Proceeding to verification."
-    echo ""
-else
-    echo "The random password has been generated and stored in:"
-    echo "  • 1Password item: $ONEPASSWORD_ITEM"
-    echo "  • YubiKey encrypted file: $PASSPHRASE_FILE"
-    echo ""
-    echo "You need to manually re-encrypt your SSH key with this new password."
-    echo ""
-    warn "IMPORTANT: Follow these steps carefully:"
-    echo ""
-    echo "1. Run this command to re-encrypt your SSH key:"
-    echo "   ssh-keygen -p -f $SSH_KEY"
-    echo ""
-    echo "2. When prompted for 'Enter old passphrase':"
-    echo "   → Enter your CURRENT SSH key passphrase"
-    echo ""
-    echo "3. Copy the password to clipboard with this command:"
-    echo "   op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal | wl-copy"
-    echo ""
-    echo "4. When prompted for 'Enter new passphrase':"
-    echo "   → Paste from clipboard (Ctrl+Shift+V or middle-click)"
-    echo ""
-    echo "5. When prompted for 'Enter same passphrase again':"
-    echo "   → Paste from clipboard again"
-    echo ""
-
-    # Wait for user to complete the re-encryption
-    read -p "Press Enter when you have successfully re-encrypted your SSH key... " -r
-    echo ""
-fi
-
-# Step 11: Verify SSH key encryption
-warn "Step 10: Verifying SSH key encryption"
-echo ""
-
-echo "Testing if SSH key was re-encrypted correctly..."
-
-# Test retrieval from 1Password
 echo "Testing 1Password method..."
 OP_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
 if ! ssh-keygen -y -P "$OP_PASSWORD" -f "$SSH_KEY" &>/dev/null; then
     error "Error: SSH key doesn't work with 1Password password"
     echo ""
-    echo "This means the SSH key was not re-encrypted correctly."
-    echo "Please restore from your backup and re-run this setup script."
+    echo "Please re-run the setup script."
     exit 1
 fi
-
 unset OP_PASSWORD
 log "✓ 1Password method verified"
 echo ""
 
-# Test YubiKey method
 echo "Testing YubiKey method..."
 echo "Touch your YubiKey when it blinks..."
 
@@ -371,8 +346,7 @@ YUBIKEY_PASSWORD=$(printf "%s" "$YUBIKEY_RESPONSE" | \
 if ! ssh-keygen -y -P "$YUBIKEY_PASSWORD" -f "$SSH_KEY" &>/dev/null; then
     error "Error: SSH key doesn't work with YubiKey-decrypted password"
     echo ""
-    echo "This means the SSH key was not re-encrypted correctly."
-    echo "Please restore from your backup and re-run this setup script."
+    echo "Please re-run the setup script."
     exit 1
 fi
 
