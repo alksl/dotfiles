@@ -10,6 +10,34 @@
 
 set -euo pipefail
 
+# Parse arguments
+OVERWRITE_SLOT=false
+for arg in "$@"; do
+    case "$arg" in
+        --overwrite-slot)
+            OVERWRITE_SLOT=true
+            ;;
+        -h|--help)
+            echo "Usage: $(basename "$0") [--overwrite-slot]"
+            echo ""
+            echo "Options:"
+            echo "  --overwrite-slot  Generate a new HMAC secret in YubiKey Slot 2."
+            echo "                    WARNING: This is destructive — all other machines"
+            echo "                    using the same YubiKey will need to re-run setup."
+            echo "                    By default, the existing Slot 2 credential is reused"
+            echo "                    and a machine-specific challenge is used instead."
+            echo ""
+            echo "  -h, --help        Show this help message and exit."
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $arg" >&2
+            echo "Run with --help for usage." >&2
+            exit 1
+            ;;
+    esac
+done
+
 # Load common configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/ssh.sh"
@@ -111,29 +139,27 @@ if ykman otp info 2>/dev/null | grep -q "Slot 2:.*Programmed"; then
 fi
 
 if $SLOT2_CONFIGURED; then
-    warn "Slot 2 is already configured."
-    echo ""
-    echo "Options:"
-    echo "  [o] Overwrite Slot 2 with a new challenge-response credential (destructive)"
-    echo "  [k] Keep the existing Slot 2 credential and use a different challenge"
-    echo "      Challenge that will be used: $CHALLENGE"
-    echo ""
-    read -p "Choice [o/K] " -n 1 -r
-    echo ""
-    case "${REPLY,,}" in
-        o)
-            echo ""
-            echo "You will be asked to touch the YubiKey to confirm..."
-            if ! ykman otp chalresp --generate --touch --force 2; then
-                error "Error: Failed to configure YubiKey Slot 2"
-                exit 1
-            fi
-            log "✓ YubiKey Slot 2 reconfigured with new credential"
-            ;;
-        *)
-            log "✓ Keeping existing Slot 2 credential — will use challenge: $CHALLENGE"
-            ;;
-    esac
+    if $OVERWRITE_SLOT; then
+        warn "WARNING: --overwrite-slot specified. This will generate a new HMAC secret in Slot 2."
+        warn "All other machines using this YubiKey will need to re-run setup after this."
+        echo ""
+        read -p "Are you sure you want to overwrite Slot 2? [y/N] " -n 1 -r
+        echo ""
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Aborted."
+            exit 0
+        fi
+        echo ""
+        echo "You will be asked to touch the YubiKey to confirm..."
+        if ! ykman otp chalresp --generate --touch --force 2; then
+            error "Error: Failed to configure YubiKey Slot 2"
+            exit 1
+        fi
+        log "✓ YubiKey Slot 2 reconfigured with new credential"
+    else
+        log "✓ Slot 2 already configured — reusing existing credential with challenge: $CHALLENGE"
+        echo "  (Run with --overwrite-slot to generate a new HMAC secret instead)"
+    fi
 else
     echo "Slot 2 is empty. It will be configured with a new challenge-response credential."
     read -p "Continue? [y/N] " -n 1 -r
@@ -168,72 +194,70 @@ fi
 log "✓ Challenge-response working"
 echo ""
 
-# Step 4: Generate random password
-warn "Step 4: Generating random password for SSH key encryption"
+# Step 4: Obtain password (reuse from 1Password if it already exists)
+warn "Step 4: Obtaining password for SSH key encryption"
 echo ""
 
-# Generate 64-character hex password split into 8 groups of 8 chars with hyphens
-# This is more readable and avoids special character issues with base64
-# Result format: xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx
-RANDOM_PASSWORD=$(openssl rand -hex 32 | sed 's/\(........\)/\1-/g' | sed 's/-$//')
-
-if [ -z "$RANDOM_PASSWORD" ]; then
-    error "Error: Failed to generate random password"
-    unset CURRENT_PASSPHRASE
-    exit 1
+EXISTING_OP_ITEM=false
+if op item get "$ONEPASSWORD_ITEM" --account "$OP_ACCOUNT" &>/dev/null; then
+    EXISTING_OP_ITEM=true
 fi
 
-log "✓ Random password generated (hex format with hyphens)"
-echo "  Password: $RANDOM_PASSWORD"
-echo ""
-
-# Step 6: Store password in 1Password
-warn "Step 5: Storing password in 1Password"
-echo ""
-
-# Check if item already exists
-if op item get "$ONEPASSWORD_ITEM" --account "$OP_ACCOUNT" &>/dev/null; then
-    warn "1Password item '$ONEPASSWORD_ITEM' already exists"
-    read -p "Do you want to overwrite it? [y/N] " -n 1 -r
+if $EXISTING_OP_ITEM; then
+    log "✓ 1Password item '$ONEPASSWORD_ITEM' already exists — reusing existing password"
+    RANDOM_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+    if [ -z "$RANDOM_PASSWORD" ]; then
+        error "Error: Failed to fetch existing password from 1Password"
+        exit 1
+    fi
+    echo "  (Using existing password from 1Password — SSH key re-encryption will be skipped)"
     echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        error "Aborted. Please delete the existing item or use a different hostname."
-        unset CURRENT_PASSPHRASE
+else
+    # Generate 64-character hex password split into 8 groups of 8 chars with hyphens
+    # This is more readable and avoids special character issues with base64
+    # Result format: xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx-xxxxxxxx
+    RANDOM_PASSWORD=$(openssl rand -hex 32 | sed 's/\(........\)/\1-/g' | sed 's/-$//')
+
+    if [ -z "$RANDOM_PASSWORD" ]; then
+        error "Error: Failed to generate random password"
+        exit 1
+    fi
+
+    log "✓ Random password generated (hex format with hyphens)"
+    echo ""
+
+    # Step 5: Store password in 1Password
+    warn "Step 5: Storing password in 1Password"
+    echo "Creating 1Password item: $ONEPASSWORD_ITEM"
+    echo ""
+
+    if ! store_op_password "$ONEPASSWORD_ITEM" "$RANDOM_PASSWORD" "ssh,$HOSTNAME"; then
+        error "Error: Failed to store password in 1Password"
         unset RANDOM_PASSWORD
         exit 1
     fi
-    echo "Updating existing 1Password item: $ONEPASSWORD_ITEM"
-else
-    echo "Creating 1Password item: $ONEPASSWORD_ITEM"
+
+    log "✓ Password stored in 1Password"
+    echo ""
+
+    # Step 6: Verify 1Password retrieval
+    warn "Step 6: Verifying 1Password retrieval"
+    echo ""
+
+    RETRIEVED_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
+    if [ "$RETRIEVED_PASSWORD" != "$RANDOM_PASSWORD" ]; then
+        error "Error: Retrieved password doesn't match stored password"
+        echo "The password was not stored correctly in 1Password."
+        echo "Please re-run the setup script."
+        exit 1
+    fi
+
+    unset RETRIEVED_PASSWORD
+    log "✓ 1Password retrieval verified"
+    echo ""
 fi
 
-if ! store_op_password "$ONEPASSWORD_ITEM" "$RANDOM_PASSWORD" "ssh,$HOSTNAME"; then
-    error "Error: Failed to store password in 1Password"
-    unset CURRENT_PASSPHRASE
-    unset RANDOM_PASSWORD
-    exit 1
-fi
-
-log "✓ Password stored in 1Password"
-echo ""
-
-# Step 7: Verify 1Password retrieval
-warn "Step 6: Verifying 1Password retrieval"
-echo ""
-
-RETRIEVED_PASSWORD=$(fetch_op_password "$ONEPASSWORD_ITEM" "$ONEPASSWORD_FIELD")
-if [ "$RETRIEVED_PASSWORD" != "$RANDOM_PASSWORD" ]; then
-    error "Error: Retrieved password doesn't match stored password"
-    echo "The password was not stored correctly in 1Password."
-    echo "Please re-run the setup script."
-    exit 1
-fi
-
-unset RETRIEVED_PASSWORD
-log "✓ 1Password retrieval verified"
-echo ""
-
-# Step 8: Encrypt random password with YubiKey
+# Step 7: Encrypt password with YubiKey
 warn "Step 7: Encrypting password with YubiKey challenge-response"
 echo "Touch your YubiKey when it blinks..."
 echo ""
@@ -242,7 +266,7 @@ echo ""
 CHALLENGE_HEX=$(printf "%s" "$CHALLENGE" | xxd -p | tr -d '\n')
 YUBIKEY_RESPONSE=$(ykman otp calculate 2 "$CHALLENGE_HEX")
 
-# Encrypt the random password with YubiKey response
+# Encrypt the password with YubiKey response
 printf "%s" "$RANDOM_PASSWORD" | \
     openssl enc -aes-256-cbc -a -salt \
     -pass pass:"$YUBIKEY_RESPONSE" \
@@ -254,7 +278,7 @@ chmod 600 "$PASSPHRASE_FILE"
 log "✓ Password encrypted with YubiKey and saved to $PASSPHRASE_FILE"
 echo ""
 
-# Step 9: Test YubiKey decryption
+# Step 8: Test YubiKey decryption
 warn "Step 8: Testing YubiKey decryption"
 echo "Touch your YubiKey when it blinks..."
 echo ""
@@ -276,46 +300,43 @@ unset DECRYPTED_PASSWORD
 log "✓ YubiKey decryption verified"
 echo ""
 
-# Step 10: Manual SSH key re-encryption
+# Step 9: SSH key re-encryption (only needed when a new password was generated)
 warn "Step 9: Re-encrypt your SSH key with the new password"
 echo ""
 
-echo "The random password has been generated and stored in:"
-echo "  • 1Password item: $ONEPASSWORD_ITEM"
-echo "  • YubiKey encrypted file: $PASSPHRASE_FILE"
-echo ""
-echo "You need to manually re-encrypt your SSH key with this new password."
-echo ""
-warn "IMPORTANT: Follow these steps carefully:"
-echo ""
-echo "1. Run this command to re-encrypt your SSH key:"
-echo "   ssh-keygen -p -f $SSH_KEY"
-echo ""
-echo "2. When prompted for 'Enter old passphrase':"
-echo "   → Enter your CURRENT SSH key passphrase"
-echo ""
-echo "3. Copy the password to clipboard with this command:"
-echo "   op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal | wl-copy"
-echo ""
-echo "4. When prompted for 'Enter new passphrase':"
-echo "   → Paste from clipboard (Ctrl+Shift+V or middle-click)"
-echo ""
-echo "5. When prompted for 'Enter same passphrase again':"
-echo "   → Paste from clipboard again"
-echo ""
-echo "Alternative: Store in variable and use when needed:"
-echo "   NEW_PASS=\$(op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal)"
-echo "   ssh-keygen -p -f $SSH_KEY"
-echo "   → Enter old passphrase when prompted"
-echo "   → Paste \$NEW_PASS for new passphrase (echo \$NEW_PASS to see it)"
-echo ""
+if $EXISTING_OP_ITEM; then
+    log "✓ Password already existed in 1Password — SSH key should already be encrypted with it"
+    echo "  Skipping re-encryption. Proceeding to verification."
+    echo ""
+else
+    echo "The random password has been generated and stored in:"
+    echo "  • 1Password item: $ONEPASSWORD_ITEM"
+    echo "  • YubiKey encrypted file: $PASSPHRASE_FILE"
+    echo ""
+    echo "You need to manually re-encrypt your SSH key with this new password."
+    echo ""
+    warn "IMPORTANT: Follow these steps carefully:"
+    echo ""
+    echo "1. Run this command to re-encrypt your SSH key:"
+    echo "   ssh-keygen -p -f $SSH_KEY"
+    echo ""
+    echo "2. When prompted for 'Enter old passphrase':"
+    echo "   → Enter your CURRENT SSH key passphrase"
+    echo ""
+    echo "3. Copy the password to clipboard with this command:"
+    echo "   op item get $ONEPASSWORD_ITEM --account my.1password.com --fields password --reveal | wl-copy"
+    echo ""
+    echo "4. When prompted for 'Enter new passphrase':"
+    echo "   → Paste from clipboard (Ctrl+Shift+V or middle-click)"
+    echo ""
+    echo "5. When prompted for 'Enter same passphrase again':"
+    echo "   → Paste from clipboard again"
+    echo ""
 
-# Clear sensitive variables before user interaction
-unset CURRENT_PASSPHRASE
-
-# Wait for user to complete the re-encryption
-read -p "Press Enter when you have successfully re-encrypted your SSH key... " -r
-echo ""
+    # Wait for user to complete the re-encryption
+    read -p "Press Enter when you have successfully re-encrypted your SSH key... " -r
+    echo ""
+fi
 
 # Step 11: Verify SSH key encryption
 warn "Step 10: Verifying SSH key encryption"
