@@ -1,38 +1,29 @@
 local M = {}
 
+local parsers = {
+  "lua",
+  "ruby",
+  "python",
+  "graphql",
+  "typescript",
+  "javascript",
+  "tsx",
+  "markdown",
+  "markdown_inline",
+  "go",
+}
+
 function M.setup()
-  require("nvim-treesitter.configs").setup {
-    -- One of "all",  or a list of languages
-    ensure_installed = {
-      "lua",
-      "ruby",
-      "python",
-      "graphql",
-      "typescript",
-      "javascript",
-      "tsx",
-      "markdown",
-      "go",
-      "markdown_inline",
-    },
+  require("nvim-treesitter").setup()
+  require("nvim-treesitter").install(parsers)
 
-    -- Install languages synchronously (only applied to `ensure_installed`)
-    sync_install = false,
-
-    highlight = {
-      -- `false` will disable the whole extension
-      enable = true,
-    },
-    indent = {
-      enable = true
-    },
-    endwise = {
-      enable = false
-    },
-    markdown = {
-      enable = true
-    }
-  }
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = parsers,
+    callback = function()
+      vim.treesitter.start()
+      vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end,
+  })
 end
 
 return M

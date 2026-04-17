@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Run nvim with the dotfiles config in an isolated environment
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [[ -d "$1" ]]; then
+  cd "$1" || exit 1
+  shift
+fi
+
+exec env \
+  XDG_CONFIG_HOME="$DOTFILES" \
+  XDG_STATE_HOME="$DOTFILES/.local/state" \
+  XDG_CACHE_HOME="$DOTFILES/.local/cache" \
+  nvim "$@"
