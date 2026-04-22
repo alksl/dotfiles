@@ -7,6 +7,9 @@ usage() {
     echo "Usage: wt new <branch-name>"
     echo "       wt switch <branch-name>"
     echo "       wt sw <branch-name>"
+    echo "       wt rm <branch-name>"
+    echo "       wt list"
+    echo "       wt prune"
 }
 
 cmd_new() {
