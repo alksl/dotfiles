@@ -35,8 +35,15 @@ cmd_new() {
     worktree_path="$(dirname "$toplevel")/${repo_name}-${branch}"
 
     # Check if a worktree already exists on this branch
-    local existing_worktree
-    existing_worktree=$(git worktree list --porcelain | awk '/^worktree /{wt=$2} /^branch refs\/heads\/'"$branch"'$/{print wt}')
+    local existing_worktree=""
+    local cur_wt=""
+    while IFS= read -r line; do
+        case "$line" in
+            "worktree "*)  cur_wt="${line#worktree }" ;;
+            "branch refs/heads/${branch}")  existing_worktree="$cur_wt"; break ;;
+        esac
+    done < <(git worktree list --porcelain)
+
     if [ -n "$existing_worktree" ]; then
         error "A worktree for branch '$branch' already exists at: $existing_worktree"
         exit 1
@@ -48,8 +55,12 @@ cmd_new() {
         exit 1
     fi
 
-    # Create branch if it doesn't exist
-    if ! git show-ref --verify --quiet "refs/heads/$branch"; then
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+        log "Using existing branch '$branch'"
+    elif git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+        log "Creating local branch '$branch' tracking origin/$branch"
+        git branch "$branch" "origin/$branch"
+    else
         log "Creating branch '$branch' from HEAD"
         git branch "$branch"
     fi
