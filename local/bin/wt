@@ -20,19 +20,25 @@ cmd_new() {
         exit 1
     fi
 
-    # Validate we're inside a git repo
-    local toplevel
-    toplevel=$(git rev-parse --show-toplevel 2>/dev/null)
-    if [ -z "$toplevel" ]; then
+    # Always derive the path from the main worktree so that running wt new
+    # from inside a linked worktree doesn't produce repo-branch1-branch2.
+    local main_worktree=""
+    while IFS= read -r line; do
+        case "$line" in
+            "worktree "*) main_worktree="${line#worktree }"; break ;;
+        esac
+    done < <(git worktree list --porcelain 2>/dev/null)
+
+    if [ -z "$main_worktree" ]; then
         error "Not inside a git repository"
         exit 1
     fi
 
     local repo_name
-    repo_name=$(basename "$toplevel")
+    repo_name=$(basename "$main_worktree")
 
     local worktree_path
-    worktree_path="$(dirname "$toplevel")/${repo_name}-${branch}"
+    worktree_path="$(dirname "$main_worktree")/${repo_name}-${branch}"
 
     # Check if a worktree already exists on this branch
     local existing_worktree=""
