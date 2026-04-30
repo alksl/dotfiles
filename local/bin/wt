@@ -9,7 +9,7 @@ usage() {
     echo "       wt sw <branch-name>"
     echo "       wt rm <branch-name>"
     echo "       wt list"
-    echo "       wt prune"
+    echo "       wt prune          # remove worktrees merged into default branch"
 }
 
 cmd_new() {
@@ -156,7 +156,53 @@ cmd_list() {
 }
 
 cmd_prune() {
-    git worktree prune
+    local default_branch
+    default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||')
+
+    if [ -z "$default_branch" ]; then
+        if git show-ref --verify --quiet refs/heads/main; then
+            default_branch="main"
+        elif git show-ref --verify --quiet refs/heads/master; then
+            default_branch="master"
+        else
+            error "Could not determine default branch"
+            exit 1
+        fi
+    fi
+
+    log "Using default branch: $default_branch"
+
+    local pruned=0
+    local skip_main=1
+    local wt_path=""
+    local branch=""
+
+    while IFS= read -r line; do
+        case "$line" in
+            "worktree "*)
+                wt_path="${line#worktree }"
+                branch=""
+                ;;
+            "branch "*)
+                branch="${line#branch refs/heads/}"
+                ;;
+            "")
+                if [ "$skip_main" -eq 1 ]; then
+                    skip_main=0
+                elif [ -n "$branch" ] && git merge-base --is-ancestor "$branch" "$default_branch" 2>/dev/null; then
+                    log "Removing merged worktree: $wt_path (branch: $branch)"
+                    git worktree remove "$wt_path"
+                    pruned=$((pruned + 1))
+                fi
+                wt_path=""
+                branch=""
+                ;;
+        esac
+    done < <(git worktree list --porcelain && echo)
+
+    if [ "$pruned" -eq 0 ]; then
+        log "No merged worktrees found"
+    fi
 }
 
 # Parse subcommand
