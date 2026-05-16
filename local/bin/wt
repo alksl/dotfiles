@@ -5,8 +5,8 @@ source "$(dirname "$0")/log.sh"
 
 usage() {
     echo "Usage: wt new <branch-name>"
-    echo "       wt switch <branch-name>"
-    echo "       wt sw <branch-name>"
+    echo "       wt switch [-c] <branch-name>"
+    echo "       wt sw [-c] <branch-name>"
     echo "       wt rm <branch-name>"
     echo "       wt list"
     echo "       wt prune          # remove worktrees merged into default branch"
@@ -77,6 +77,12 @@ cmd_new() {
 }
 
 cmd_switch() {
+    local create=0
+    if [ "$1" = "-c" ]; then
+        create=1
+        shift
+    fi
+
     local branch="$1"
 
     if [ -z "$branch" ]; then
@@ -90,6 +96,13 @@ cmd_switch() {
     if [ -z "$toplevel" ]; then
         error "Not inside a git repository"
         exit 1
+    fi
+
+    if [ "$create" -eq 1 ]; then
+        # Create the branch + worktree; cmd_new exits non-zero on failure.
+        # Redirect its stdout to stderr so only the path we echo below
+        # reaches the shell wrapper that cd's into it.
+        cmd_new "$branch" >&2 || exit $?
     fi
 
     # Find the main worktree (always the first entry in the list)
