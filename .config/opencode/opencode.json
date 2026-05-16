@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    // Allow OpenCode to read .git folders outside the working directory.
+    // Needed for git worktrees where the .git metadata lives in a sibling
+    // repo (e.g. ~/code/my-project/.git/worktrees/my-branch).
+    "external_directory": {
+      "~/code/**/.git/**": "allow"
+    },
+    // Prompt before any writes into a .git folder.
+    // "ask" will require approval rather than blocking outright.
+    "edit": {
+      "~/code/**/.git/**": "ask"
+    }
+  }
+}
